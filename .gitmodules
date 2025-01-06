@@ -1,0 +1,6 @@
+[submodule "Ateng-Java"]
+	path = work/Ateng-Java
+	url = git@github.com:kongyu666/Ateng-Java.git
+[submodule "Ateng-Boot"]
+	path = work/Ateng-Boot
+	url = git@github.com:kongyu666/Ateng-Boot.git
