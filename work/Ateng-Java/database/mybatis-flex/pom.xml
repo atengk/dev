@@ -21,7 +21,7 @@
         <lombok.version>1.18.36</lombok.version>
         <fastjson2.version>2.0.53</fastjson2.version>
         <hutool.version>5.8.35</hutool.version>
-        <mybatis-flex.version>1.10.4</mybatis-flex.version>
+        <mybatis-flex.version>1.10.5</mybatis-flex.version>
         <druid.version>1.2.24</druid.version>
     </properties>
 
@@ -60,7 +60,7 @@
         <!-- https://github.com/alibaba/fastjson2/blob/main/docs/spring_support_cn.md -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2-extension-spring5</artifactId>
+            <artifactId>fastjson2-extension-spring6</artifactId>
             <version>${fastjson2.version}</version>
         </dependency>
 
@@ -104,7 +104,7 @@
         <!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
+            <artifactId>druid-spring-boot-3-starter</artifactId>
             <version>${druid.version}</version>
         </dependency>
     </dependencies>

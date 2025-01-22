@@ -1,5 +1,0 @@
-io.github.kongyu666.common.web.config.MyWebMvcConfigurer
-io.github.kongyu666.common.web.config.MyUndertowConfig
-io.github.kongyu666.common.web.config.FilterConfig
-io.github.kongyu666.common.web.config.ResourcesConfig
-io.github.kongyu666.common.web.handler.GlobalExceptionHandler
