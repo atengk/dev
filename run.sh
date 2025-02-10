@@ -18,7 +18,7 @@ set -x
 
 # 拉取代码
 pushd ${WORK_DIR}/work/${SOURCE}
-git pull
+git pull -v
 popd
 #git clone git@github.com:kongyu666/${SOURCE}.git ${WORK_DIR}/tmp/${SOURCE}
 
