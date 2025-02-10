@@ -19,5 +19,8 @@
         <module>redis-template</module>
         <module>jdbc-template</module>
         <module>spring-jpa</module>
+        <module>easy-es</module>
+        <module>mongo-plus</module>
+        <module>mongo-template</module>
     </modules>
 </project>

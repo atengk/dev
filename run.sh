@@ -21,7 +21,7 @@ rm -rf ${WORK_DIR}/work
 mv ${WORK_DIR}/tmp ${WORK_DIR}/work
 
 # 删除.git
-rm -rf ${WORK_DIR}/work/${SOURCE}/.git/
+#rm -rf ${WORK_DIR}/work/${SOURCE}/.git/
 
 # 上传代码
 git add -v ${WORK_DIR}
