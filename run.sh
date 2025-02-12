@@ -3,8 +3,8 @@
 WORK_DIR=/data/file/kongyu/dev
 
 # 输入参数
-SOURCE=$1
-COMMIT_MSG="${1:-修改文档}"
+SOURCE="${1:-Ateng-Java}"
+COMMIT_MSG="${2:-修改文档}"
 
 if [ -z "${SOURCE}" ]
 then
