@@ -29,6 +29,7 @@
     - Admin 监控
         - [服务端](/work/Ateng-Java/springboot3/admin-server/)
         - [客户端](/work/Ateng-Java/springboot3/admin-client/)
+    - [日志管理](/work/Ateng-Java/springboot3/log/)
 
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
@@ -60,6 +61,13 @@
     - [WebClient](/work/Ateng-Java/http/web-client/)
     - [RestTemplate](/work/Ateng-Java/http/rest-template/)
     - [Forest](/work/Ateng-Java/http/forest/)
+
+- 任务相关
+    -  [Scheduled](/work/Ateng-Java/task/scheduled/)
+
+    - [Snail Job](/work/Ateng-Java/task/snail-job/)
+
+    - [PowerJob](/work/Ateng-Java/task/power-job/)
 
 - 实时性的服务
     - [WebSocket](/work/Ateng-Java/realtime/websocket/)
