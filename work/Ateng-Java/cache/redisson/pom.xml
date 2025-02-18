@@ -6,10 +6,13 @@
 
     <!-- 项目坐标 -->
     <groupId>local.ateng.java</groupId>
-    <artifactId>log</artifactId>
+    <artifactId>redisson</artifactId>
     <version>v1.0</version>
-    <name>log</name>
-    <description>SpringBoot3 日志相关的模块</description>
+    <name>redisson</name>
+    <description>
+        Redisson 是一个基于 Redis 的 Java 客户端，提供了丰富的分布式数据结构和服务，如分布式锁、集合、队列、Map 等。
+        它简化了与 Redis 的交互，并且支持高可用性、分布式事务、监控等特性，非常适合构建高性能和高可扩展性的应用。
+    </description>
 
     <!-- 项目属性 -->
     <properties>
@@ -19,6 +22,8 @@
         <spring-boot.version>3.4.1</spring-boot.version>
         <maven-compiler.version>3.12.1</maven-compiler.version>
         <lombok.version>1.18.36</lombok.version>
+        <fastjson2.version>2.0.53</fastjson2.version>
+        <hutool.version>5.8.35</hutool.version>
     </properties>
 
     <!-- 项目依赖 -->
@@ -45,17 +50,33 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Logback to Logstash appender -->
+        <!-- 高性能的JSON库 -->
+        <!-- https://github.com/alibaba/fastjson2/wiki/fastjson2_intro_cn#0-fastjson-20%E4%BB%8B%E7%BB%8D -->
         <dependency>
-            <groupId>net.logstash.logback</groupId>
-            <artifactId>logstash-logback-encoder</artifactId>
-            <version>8.0</version>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>${fastjson2.version}</version>
         </dependency>
 
-        <!-- Actuator 依赖 -->
+        <!-- Hutool: Java工具库，提供了许多实用的工具方法 -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <!-- JavaFaker: 用于生成虚假数据的Java库 -->
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <!-- Redisson 依赖 -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.44.0</version>
         </dependency>
 
     </dependencies>
@@ -63,6 +84,7 @@
     <!-- Spring Boot 依赖管理 -->
     <dependencyManagement>
         <dependencies>
+            <!-- SpringBoot 依赖管理 -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
