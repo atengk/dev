@@ -10,6 +10,7 @@
         - [服务端](/work/Ateng-Java/springboot3/admin-server/)
         - [客户端](/work/Ateng-Java/springboot3/admin-client/)
     - [日志管理](/work/Ateng-Java/springboot3/log/)
+    - [Actuator](/work/Ateng-Java/springboot3/actuator/)
     
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
