@@ -9,12 +9,12 @@
 欢迎来到阿腾的开发知识库网站！
 
 
-## 参考
+## 特别文档专栏
 
-- [Java开发相关的源代码](https://github.com/kongyu666/Ateng-Java)
-- [SpringBoot脚手架](https://github.com/kongyu666/Ateng-Boot)
-- [SpringCloud脚手架](https://github.com/kongyu666/Ateng-Cloud)
-- [运维知识库网站](https://kongyu666.github.io/ops/)
+- **Java开发**：💻 提供各种Java开发相关的源代码，参考：[链接](https://github.com/kongyu666/Ateng-Java)
+- **SpringBoot脚手架**：⚙️ 快速构建SpringBoot项目的脚手架，提供常用功能模板，参考：[链接](https://github.com/kongyu666/Ateng-Boot)。
+- **SpringCloud脚手架**：🛠️ 针对SpringCloud微服务架构的脚手架，支持快速构建分布式系统，提升开发和维护效率，参考：[链接](https://github.com/kongyu666/Ateng-Cloud)。
+- **运维文档**：🔥 提供丰富的运维知识与实用教程，涵盖系统管理、容器运维等领域，帮助提升运维技能，参考：[链接](https://kongyu666.github.io/ops/)
 
 ## 目录
 
@@ -31,6 +31,7 @@
         - [客户端](/work/Ateng-Java/springboot3/admin-client/)
     - [日志管理](/work/Ateng-Java/springboot3/log/)
     - [Actuator](/work/Ateng-Java/springboot3/actuator/)
+    - [AOP切面](/work/Ateng-Java/springboot3/aop/)
 
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
@@ -38,6 +39,7 @@
     - [Stream](/work/Ateng-Java/tools/stream/)
     - [MapStructPlus](/work/Ateng-Java/tools/mapstruct-plus/)
     - [FastExcel](/work/Ateng-Java/tools/fast-excel/)
+    - [Lombok](/work/Ateng-Java/tools/lombok/)
 
 - 数据库相关
     - [MyBatis-Flex](/work/Ateng-Java/database/mybatis-flex/)
