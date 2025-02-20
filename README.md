@@ -14,20 +14,17 @@
 ## 特别文档专栏
 
 - **系统运维网站**：💻🛠️
-    提供丰富的运维知识与实用教程，涵盖系统管理、容器运维等领域，帮助提升运维技能。
-    查看：[系统运维网站](https://kongyu666.github.io/ops/)
-
+  - 提供丰富的运维知识与实用教程，涵盖系统管理、容器运维等领域，帮助提升运维技能。
+  - 查看：[系统运维网站](https://kongyu666.github.io/ops/)
 - **Java开发**：☕🔥 
-    提供各种Java开发相关的源代码。
-    参考：[Java开发源代码](https://github.com/kongyu666/Ateng-Java)
-
+    - 提供各种Java开发相关的源代码。
+    - 参考：[Java开发源代码](https://github.com/kongyu666/Ateng-Java)
 - **SpringBoot脚手架**：🌱🚀 
-    快速构建SpringBoot项目的脚手架，提供常用功能模板。
-    参考：[SpringBoot源代码](https://github.com/kongyu666/Ateng-Boot)
-
+  - 快速构建SpringBoot项目的脚手架，提供常用功能模板。
+  - 参考：[SpringBoot源代码](https://github.com/kongyu666/Ateng-Boot)
 - **SpringCloud脚手架**：☁️ 🖧 
-    针对SpringCloud微服务架构的脚手架，支持快速构建分布式系统，提升开发和维护效率。
-    参考：[SpringCloud源代码](https://github.com/kongyu666/Ateng-Cloud)
+  - 针对SpringCloud微服务架构的脚手架，支持快速构建分布式系统，提升开发和维护效率。
+  - 参考：[SpringCloud源代码](https://github.com/kongyu666/Ateng-Cloud)
 
 ## 文档目录
 
