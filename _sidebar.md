@@ -33,6 +33,9 @@
     - [JetCache](/work/Ateng-Java/cache/jetcache/)
     - [Caffeine](/work/Ateng-Java/cache/caffeine/)
     - [SpringCache](/work/Ateng-Java/cache/spring-cache/)
+- 权限认证
+    - [Sa-Token](/work/Ateng-Java/auth/sa-token/)
+    - [Spring Security](/work/Ateng-Java/auth/spring-security/)
 - 存储相关
     - [X File Storage](/work/Ateng-Java/storage/x-file-storage/)
 - 消息队列相关
@@ -46,9 +49,9 @@
     - [Forest](/work/Ateng-Java/http/forest/)
 - 任务相关
     -  [Scheduled](/work/Ateng-Java/task/scheduled/)
-    
+
     - [Snail Job](/work/Ateng-Java/task/snail-job/)
-    
+
     - [PowerJob](/work/Ateng-Java/task/power-job/)
 - 实时性的服务
     - [WebSocket](/work/Ateng-Java/realtime/websocket/)
