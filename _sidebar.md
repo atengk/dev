@@ -14,6 +14,7 @@
     - [AOP切面](/work/Ateng-Java/springboot3/aop/)
     - 其他
         - [Spring Boot DevTools](/work/Ateng-Java/springboot3/doc/devtools.md)
+        - [源码包和依赖包分离](/work/Ateng-Java/springboot3/doc/separate.md)
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
     - [FastJson2](/work/Ateng-Java/tools/fastjson2/)
