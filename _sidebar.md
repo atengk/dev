@@ -12,6 +12,8 @@
     - [日志管理](/work/Ateng-Java/springboot3/log/)
     - [Actuator](/work/Ateng-Java/springboot3/actuator/)
     - [AOP切面](/work/Ateng-Java/springboot3/aop/)
+    - 其他
+        - [Spring Boot DevTools](/work/Ateng-Java/springboot3/doc/devtools.md)
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
     - [FastJson2](/work/Ateng-Java/tools/fastjson2/)
@@ -19,6 +21,7 @@
     - [MapStructPlus](/work/Ateng-Java/tools/mapstruct-plus/)
     - [FastExcel](/work/Ateng-Java/tools/fast-excel/)
     - [Lombok](/work/Ateng-Java/tools/lombok/)
+    - [异步编程](/work/Ateng-Java/tools/async/)
 - 数据库相关
     - [MyBatis-Flex](/work/Ateng-Java/database/mybatis-flex/)
     - [MyBatis Plus](/work/Ateng-Java/database/mybatis-plus/)
