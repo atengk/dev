@@ -39,17 +39,22 @@
     - [参数效验](/work/Ateng-Java/springboot3/validator/)
     - [虚拟线程](/work/Ateng-Java/springboot3/virtual/)
     - [异常处理](/work/Ateng-Java/springboot3/exception/)
-    - Admin 监控
-        - [服务端](/work/Ateng-Java/springboot3/admin-server/)
-        - [客户端](/work/Ateng-Java/springboot3/admin-client/)
     - [日志管理](/work/Ateng-Java/springboot3/log/)
     - [Actuator](/work/Ateng-Java/springboot3/actuator/)
     - [AOP切面](/work/Ateng-Java/springboot3/aop/)
+    - Admin 监控
+        - [服务端](/work/Ateng-Java/springboot3/admin-server/)
+        - [客户端](/work/Ateng-Java/springboot3/admin-client/)
+    - 序列化和反序列化
+        - [Jackson](/work/Ateng-Java/springboot3/serialize-jackson/)
+        - [Fastjson2](/work/Ateng-Java/springboot3/serialize-fastjson2/)
     - 其他
         - [Spring Boot DevTools](/work/Ateng-Java/springboot3/doc/devtools.md)
+        - [源码包和依赖包分离](/work/Ateng-Java/springboot3/doc/separate.md)
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
     - [FastJson2](/work/Ateng-Java/tools/fastjson2/)
+    - [Jackson](/work/Ateng-Java/tools/jackson/)
     - [Stream](/work/Ateng-Java/tools/stream/)
     - [MapStructPlus](/work/Ateng-Java/tools/mapstruct-plus/)
     - [FastExcel](/work/Ateng-Java/tools/fast-excel/)
@@ -62,7 +67,8 @@
     - [JdbcTemplate](/work/Ateng-Java/database/jdbc-template/)
     - [JPA](/work/Ateng-Java/database/spring-jpa/)
     - [MongoTemplate](/work/Ateng-Java/database/mongo-template/)
-    - [MongoPlus](/work/Ateng-Java/database/mongo-plus)
+    - [MongoPlus](/work/Ateng-Java/database/mongo-plus/)
+    - [AutoTable](/work/Ateng-Java/database/autotable/)
 - 缓存相关
     - [RedisTemplate](/work/Ateng-Java/cache/redis-template/)
     - [Redisson](work/Ateng-Java/cache/redisson/)
@@ -105,3 +111,4 @@
         - [使用文档](/work/Ateng-Java/bigdata/spark-examples/)
         - [单机运行](/work/Ateng-Java/bigdata/spark-standalone/)
         - [集群运行](/work/Ateng-Java/bigdata/spark-cluster/)
+    - [Zookeeper](/work/Ateng-Java/bigdata/zookeeper/)
