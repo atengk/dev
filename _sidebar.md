@@ -9,6 +9,7 @@
     - [日志管理](/work/Ateng-Java/springboot3/log/)
     - [Actuator](/work/Ateng-Java/springboot3/actuator/)
     - [AOP切面](/work/Ateng-Java/springboot3/aop/)
+    - [Docker插件](/work/Ateng-Java/springboot3/docker/)
     - Admin 监控
         - [服务端](/work/Ateng-Java/springboot3/admin-server/)
         - [客户端](/work/Ateng-Java/springboot3/admin-client/)
@@ -69,6 +70,10 @@
     - [Netty](/work/Ateng-Java/realtime/netty/)
 - 分布式相关
     - [Lock4j](/work/Ateng-Java/distributed/lock4j/)
+    - [Nacos](/work/Ateng-Java/distributed/spring-cloud-nacos/)
+    - [Spring Cloud Gateway](/work/Ateng-Java/distributed/spring-cloud-gateway/)
+    - [Dobbo](/work/Ateng-Java/distributed/spring-cloud-dobbo/)
+    - [Spring Cloud OpenFeign](/work/Ateng-Java/distributed/spring-cloud-openfeign/)
 - 大数据相关
     - Flink
         - [使用文档](/work/Ateng-Java/bigdata/flink-examples/)
