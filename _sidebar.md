@@ -72,7 +72,7 @@
     - [Lock4j](/work/Ateng-Java/distributed/lock4j/)
     - [Nacos](/work/Ateng-Java/distributed/spring-cloud-nacos/)
     - [Spring Cloud Gateway](/work/Ateng-Java/distributed/spring-cloud-gateway/)
-    - [Dobbo](/work/Ateng-Java/distributed/spring-cloud-dobbo/)
+    - [Apache Dubbo](/work/Ateng-Java/distributed/spring-cloud-dubbo-provider/)
     - [Spring Cloud OpenFeign](/work/Ateng-Java/distributed/spring-cloud-openfeign/)
 - 大数据相关
     - Flink
