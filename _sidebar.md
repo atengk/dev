@@ -74,6 +74,9 @@
     - [Spring Cloud Gateway](/work/Ateng-Java/distributed/spring-cloud-gateway/)
     - [Apache Dubbo](/work/Ateng-Java/distributed/spring-cloud-dubbo-provider/)
     - [Spring Cloud OpenFeign](/work/Ateng-Java/distributed/spring-cloud-openfeign/)
+    - [Spring Cloud Sentinel](/work/Ateng-Java/distributed/spring-cloud-sentinel/)
+    - [Spring Cloud Seata](/work/Ateng-Java/distributed/spring-cloud-seata/)
+    - [Spring Cloud Stream](/work/Ateng-Java/distributed/spring-cloud-stream/)
     - [微服务模块](/work/Ateng-Java/distributed/doc/spring-cloud-module.md)
     - [微服务模块(详细版)](/work/Ateng-Java/distributed/doc/spring-cloud-module-details.md)
 - 大数据相关
