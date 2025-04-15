@@ -22,12 +22,12 @@
 - **大数据开发**：📈🧠
   - Spark和Flink的开发使用文档。
   - 参考：[大数据开发源代码](https://kongyu666.github.io/dev/#/work/Ateng-Java/bigdata/)
-- **SpringBoot脚手架**：🌱🚀 
-  - 快速构建SpringBoot项目的脚手架，提供常用功能模板。
-  - 参考：[SpringBoot源代码](https://github.com/kongyu666/Ateng-Boot)
 - **SpringCloud脚手架**：☁️ 🖧 
   - 针对SpringCloud微服务架构的脚手架，支持快速构建分布式系统，提升开发和维护效率。
   - 参考：[SpringCloud源代码](https://github.com/kongyu666/Ateng-Cloud)
+- **CI/CD自动化部署**：⚙️
+    - 使用 Jenkins 搭建自动化构建与部署流程，结合 ArgoCD 实现基于 GitOps 的 Kubernetes 应用持续交付，支持多环境部署、镜像管理与回滚操作。
+    - 参考：[DevOps - Jenkins 使用文档](https://kongyu666.github.io/ops/#/work/service/jenkins/OPS)｜[GitOps - ArgoCD 使用文档](https://kongyu666.github.io/ops/#/work/service/argo-cd/OPS)
 
 ## 文档目录
 
