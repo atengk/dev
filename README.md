@@ -2,8 +2,6 @@
 
 - 网站管理员：[阿腾](http://wpa.qq.com/msgrd?v=3&uin=2385569970&Menu=yes)
 
-> 如果左侧点击无反应再刷新一下页面哦~~
-
 ## 概述
 
 欢迎来到阿腾的开发知识库网站！
@@ -26,7 +24,7 @@
   - 针对SpringCloud微服务架构的脚手架，支持快速构建分布式系统，提升开发和维护效率。
   - 参考：[SpringCloud源代码](https://github.com/kongyu666/Ateng-Cloud)
 - **CI/CD自动化部署**：⚙️
-    - 使用 Jenkins 搭建自动化构建与部署流程，结合 ArgoCD 实现基于 GitOps 的 Kubernetes 应用持续交付，支持多环境部署、镜像管理与回滚操作。
+    - 基于DevOps、GitOps完成自动化部署。
     - 参考：[DevOps - Jenkins 使用文档](https://kongyu666.github.io/ops/#/work/service/jenkins/OPS)｜[GitOps - ArgoCD 使用文档](https://kongyu666.github.io/ops/#/work/service/argo-cd/OPS)
 
 ## 文档目录
