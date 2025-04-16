@@ -1,33 +1,58 @@
-# 阿腾开发知识库网站
+# 开发技术栈 · 阿腾
 
-- 网站管理员：[阿腾](http://wpa.qq.com/msgrd?v=3&uin=2385569970&Menu=yes)
+## 🚀 初衷与愿景
 
-## 概述
+历经打磨，开发知识库正式版温暖上线。这里记录的不只是代码，更是无数次深夜调试的身影、一行行逻辑背后的思考。
+无论你是刚入门的新人，还是久经沙场的老手，我希望这个网站，能让你在翻阅中找到灵感，在卡壳时看到出路。
+时间在走，项目在迭代，经验也在沉淀。愿你我携手，用知识点亮前路，用积累成就自我。
 
-欢迎来到阿腾的开发知识库网站！
+------
 
-这里汇集了Java开发领域的丰富资源，涵盖了从基础的Java编程到复杂的分布式系统构建等各类内容。
+## ✨ 精选专题 · 开发从这里起飞
 
+探索 Java 开发生态的每一个关键维度，从底层架构到工程实践，每个专题都来自实战打磨和经验沉淀。
 
-## 特别文档专栏
+### 🔧 系统运维网站
 
-- **系统运维网站**：💻🛠️
-  - 提供丰富的运维知识与实用教程，涵盖系统管理、容器运维等领域，帮助提升运维技能。
-  - 查看：[系统运维网站](https://kongyu666.github.io/ops/)
-- **Java开发**：☕🔥 
-    - 提供各种Java开发相关的源代码。
-    - 参考：[Java开发源代码](https://github.com/kongyu666/Ateng-Java)
-- **大数据开发**：📈🧠
-  - Spark和Flink的开发使用文档。
-  - 参考：[大数据开发源代码](https://kongyu666.github.io/dev/#/work/Ateng-Java/bigdata/)
-- **SpringCloud脚手架**：☁️ 🖧 
-  - 针对SpringCloud微服务架构的脚手架，支持快速构建分布式系统，提升开发和维护效率。
-  - 参考：[SpringCloud源代码](https://github.com/kongyu666/Ateng-Cloud)
-- **CI/CD自动化部署**：⚙️
-    - 基于DevOps、GitOps完成自动化部署。
-    - 参考：[DevOps - Jenkins 使用文档](https://kongyu666.github.io/ops/#/work/service/jenkins/OPS)｜[GitOps - ArgoCD 使用文档](https://kongyu666.github.io/ops/#/work/service/argo-cd/OPS)
+💻 运维不是工具堆砌，而是体系构建。这里涵盖系统管理、容器运维等核心知识，助你构建稳如磐石的基础设施。
 
-## 文档目录
+ 🔗 [系统运维网站](https://kongyu666.github.io/ops/)
+
+------
+
+### ☕ Java开发资源
+
+🔥 你想要的 Java 源码示例，这里应有尽有。从框架整合到业务实战，快速定位，高效上手。
+
+ 🔗 [Java开发源代码](https://github.com/kongyu666/Ateng-Java)
+
+------
+
+### 📊 大数据开发
+
+📈 玩转 Spark 和 Flink，掌握实时与批处理的艺术，用数据驱动业务未来。
+
+ 🔗 [大数据开发文档](/work/Ateng-Java/bigdata/)
+
+------
+
+### ☁️ SpringCloud 脚手架
+
+🖧 分布式不是门槛，是加速器。这套脚手架帮助你快速搭建企业级微服务架构，提升开发与维护效率。
+
+ 🔗 [SpringCloud 源码](https://github.com/kongyu666/Ateng-Cloud)
+
+------
+
+### ⚙️ CI/CD 自动化部署
+
+🚀 无需手动发布，释放你的部署效率！融合 DevOps 与 GitOps 思维，支持 Jenkins 与 ArgoCD。
+
+ 🔗 [Jenkins 使用文档](https://kongyu666.github.io/ops/#/work/service/jenkins/OPS)｜ 🔗 [ArgoCD 使用文档](https://kongyu666.github.io/ops/#/work/service/argo-cd/OPS)
+
+---
+
+## 📚 全站索引
 
 - SpringBoot3相关
     - [HTTP接口](/work/Ateng-Java/springboot3/http-interface/)
