@@ -53,6 +53,8 @@
     - [Kafka消费者](/work/Ateng-Java/mq/kafka-consumer/)
     - [RabbitMQ生产者](/work/Ateng-Java/mq/rabbitmq-provider/)
     - [RabbitMQ消费者](/work/Ateng-Java/mq/rabbitmq-consumer/)
+    - [RocketMQ生产者](/work/Ateng-Java/mq/rocketmq-provider/)
+    - [RocketMQ消费者](/work/Ateng-Java/mq/rocketmq-consumer/)
 - HTTP请求相关
     - [WebClient](/work/Ateng-Java/http/web-client/)
     - [RestTemplate](/work/Ateng-Java/http/rest-template/)
