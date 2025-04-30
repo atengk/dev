@@ -20,7 +20,7 @@ set -x
 pushd ${WORK_DIR}/work/${SOURCE}
 git pull -v
 popd
-#git clone git@github.com:kongyu666/${SOURCE}.git ${WORK_DIR}/tmp/${SOURCE}
+#git clone git@github.com:atengk/${SOURCE}.git ${WORK_DIR}/tmp/${SOURCE}
 
 # 删除旧代码
 #rm -rf ${WORK_DIR}/work
