@@ -10,6 +10,7 @@
     - [Actuator](/work/Ateng-Java/springboot3/actuator/)
     - [AOP切面](/work/Ateng-Java/springboot3/aop/)
     - [Docker插件](/work/Ateng-Java/springboot3/docker/)
+    - [Email邮箱](/work/Ateng-Java/springboot3/email/)
     - Admin 监控
         - [服务端](/work/Ateng-Java/springboot3/admin-server/)
         - [客户端](/work/Ateng-Java/springboot3/admin-client/)
