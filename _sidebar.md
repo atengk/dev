@@ -29,9 +29,12 @@
     - [FastExcel](/work/Ateng-Java/tools/fast-excel/)
     - [Lombok](/work/Ateng-Java/tools/lombok/)
     - [异步编程](/work/Ateng-Java/tools/async/)
+    - [自定义工具类](/work/Ateng-Java/tools/custom-utils/)
 - 数据库相关
     - [MyBatis-Flex](/work/Ateng-Java/database/mybatis-flex/)
     - [MyBatis Plus](/work/Ateng-Java/database/mybatis-plus/)
+    - [MyBatis Plus JDK8](/work/Ateng-Java/database/mybatis-plus-jdk8/)
+    - [Mysql SQL](/work/Ateng-Java/database/mybatis-plus-jdk8/SQL.md)
     - [Easy-Es](/work/Ateng-Java/database/easy-es/)
     - [JdbcTemplate](/work/Ateng-Java/database/jdbc-template/)
     - [JPA](/work/Ateng-Java/database/spring-jpa/)
@@ -51,6 +54,7 @@
     - [Spring Security](/work/Ateng-Java/auth/spring-security/)
 - 存储相关
     - [X File Storage](/work/Ateng-Java/storage/x-file-storage/)
+    - [AWS S3](/work/Ateng-Java/storage/aws-s3/)
 - 消息队列相关
     - [Kafka生产者](/work/Ateng-Java/mq/kafka-provider/)
     - [Kafka消费者](/work/Ateng-Java/mq/kafka-consumer/)
@@ -61,6 +65,7 @@
 - HTTP请求相关
     - [WebClient](/work/Ateng-Java/http/web-client/)
     - [RestTemplate](/work/Ateng-Java/http/rest-template/)
+    - [RestTemplate JDK8](/work/Ateng-Java/http/rest-template-jdk8/)
     - [Forest](/work/Ateng-Java/http/forest/)
 - 任务相关
     -  [Scheduled](/work/Ateng-Java/task/scheduled/)
