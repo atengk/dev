@@ -7,10 +7,28 @@ import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.*;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.management.ManagementFactory;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Spring 工具类
@@ -36,13 +54,23 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
     private static ApplicationEventPublisher publisher;
 
     /**
+     * 未知标识常量
+     */
+    private static final String UNKNOWN = "unknown";
+
+    /**
+     * 资源路径前缀：classpath
+     */
+    private static final String CLASSPATH_PREFIX = "classpath:";
+
+    /**
      * 设置 Spring 上下文（由 Spring 自动调用）
      *
      * @param applicationContext Spring 上下文
      * @throws BeansException 设置异常
      */
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
         if (SpringUtil.context == null) {
             SpringUtil.context = applicationContext;
         }
@@ -57,7 +85,7 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
      * @param applicationEventPublisher Spring 提供的事件发布器
      */
     @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    public void setApplicationEventPublisher(@NonNull ApplicationEventPublisher applicationEventPublisher) {
         if (SpringUtil.publisher == null) {
             SpringUtil.publisher = applicationEventPublisher;
         }
@@ -136,14 +164,39 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
     }
 
     /**
-     * 获取指定类型的所有 Bean（包括泛型集合）
+     * 获取指定类型的第一个 Bean（按 Spring 容器注册顺序）
      *
-     * @param type 类型
+     * <p>
+     * 如果指定类型在容器中存在多个实现类，将返回第一个注册的 Bean。
+     * 如果不存在该类型的 Bean，则返回 null。
+     * </p>
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     * MyService service = SpringUtil.getFirstBean(MyService.class);
+     * if (service != null) {
+     *     service.doSomething();
+     * }
+     * }</pre>
+     *
+     * @param type Bean 类型
      * @param <T>  泛型
-     * @return 类型对应的所有 Bean Map（BeanName -> Bean）
+     * @return 指定类型的第一个 Bean 实例，如果不存在返回 null
      */
-    public static <T> Map<String, T> getBeansOfType(Class<T> type) {
-        return context.getBeansOfType(type);
+    public static <T> T getFirstBean(Class<T> type) {
+        Map<String, T> beans = getAllBeans(type);
+        return beans.isEmpty() ? null : beans.values().iterator().next();
+    }
+
+    /**
+     * 获取指定类型的所有 Bean
+     *
+     * @param type Bean 类型
+     * @param <T>  泛型
+     * @return Bean 名称与实例映射，如果不存在返回空 Map
+     */
+    public static <T> Map<String, T> getAllBeans(Class<T> type) {
+        return getApplicationContext().getBeansOfType(type);
     }
 
     /**
@@ -204,6 +257,71 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
     }
 
     /**
+     * 获取当前服务端口号（server.port）
+     *
+     * @return 服务端口号，默认为 8080
+     */
+    public static int getServerPort() {
+        return getEnvironment().getProperty("server.port", Integer.class, 8080);
+    }
+
+    /**
+     * 获取上下文路径（server.servlet.context-path）
+     *
+     * @return 上下文路径，未设置则返回空串
+     */
+    public static String getContextPath() {
+        return getEnvironment().getProperty("server.servlet.context-path", "");
+    }
+
+    /**
+     * 获取指定 logger 的日志级别（如 logging.level.com.example=DEBUG）
+     *
+     * @param loggerName 日志名称（如 com.example）
+     * @return 对应日志级别（如 DEBUG、INFO），找不到返回 null
+     */
+    public static String getLogLevel(String loggerName) {
+        return getEnvironment().getProperty("logging.level." + loggerName);
+    }
+
+    /**
+     * 获取当前 Spring Boot 应用的名称（spring.application.name）
+     *
+     * @return 应用名称，若未配置则返回 null
+     */
+    public static String getAppName() {
+        return getEnvironment().getProperty("spring.application.name");
+    }
+
+    /**
+     * 获取 Spring 应用启动时间（时间戳）
+     *
+     * @return 启动时间（毫秒值），若上下文未初始化则返回 -1
+     */
+    public static long getApplicationStartupTime() {
+        ApplicationContext context = getApplicationContext();
+        return context != null ? context.getStartupDate() : -1;
+    }
+
+    /**
+     * 获取当前 Java 进程的 PID（适配 JDK 8）
+     *
+     * @return 当前进程的 PID，失败返回 -1
+     */
+    public static long getPid() {
+        // 分隔符，用于提取 PID
+        final String PID_SEPARATOR = "@";
+        try {
+            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+            if (jvmName != null && jvmName.contains(PID_SEPARATOR)) {
+                return Long.parseLong(jvmName.split(PID_SEPARATOR)[0]);
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
+    }
+
+    /**
      * 获取 Spring 的 Environment 对象
      * 可用于访问配置、环境变量、激活的 profiles 等信息
      *
@@ -219,7 +337,7 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
      * @param name 环境变量名称（如 JAVA_HOME、PATH 等）
      * @return 对应值，若不存在返回 null
      */
-    public static String getEnvironment(String name) {
+    public static String getSystemEnv(String name) {
         return System.getenv(name);
     }
 
@@ -230,7 +348,7 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
      * @param defaultValue 默认值
      * @return 环境变量值或默认值
      */
-    public static String getEnvironment(String name, String defaultValue) {
+    public static String getSystemEnv(String name, String defaultValue) {
         String value = System.getenv(name);
         return value != null ? value : defaultValue;
     }
@@ -410,6 +528,169 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
             return value;
         }
         return context.getEnvironment().resolvePlaceholders(value);
+    }
+
+    /**
+     * 获取当前 ServletContext 对象
+     *
+     * @return ServletContext 对象，若无法获取则返回 null
+     */
+    public static ServletContext getServletContext() {
+        ApplicationContext ctx = getApplicationContext();
+        if (ctx instanceof WebApplicationContext) {
+            return ((WebApplicationContext) ctx).getServletContext();
+        }
+        return null;
+    }
+
+    /**
+     * 获取 ServletRequestAttributes（请求上下文属性对象）
+     *
+     * @return ServletRequestAttributes，若不存在则返回 null
+     */
+    public static ServletRequestAttributes getServletRequestAttributes() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        return attributes instanceof ServletRequestAttributes ? (ServletRequestAttributes) attributes : null;
+    }
+
+    /**
+     * 获取当前请求对象（HttpServletRequest）
+     *
+     * @return 当前请求对象，若不存在则返回 null
+     */
+    public static HttpServletRequest getHttpServletRequest() {
+        ServletRequestAttributes attributes = getServletRequestAttributes();
+        return attributes != null ? attributes.getRequest() : null;
+    }
+
+    /**
+     * 获取当前响应对象（HttpServletResponse）
+     *
+     * @return 当前响应对象，若不存在则返回 null
+     */
+    public static HttpServletResponse getHttpServletResponse() {
+        ServletRequestAttributes attributes = getServletRequestAttributes();
+        return attributes != null ? attributes.getResponse() : null;
+    }
+
+    /**
+     * 获取当前会话对象（HttpSession），若无请求上下文或会话返回 null
+     *
+     * @return 当前 HttpSession
+     */
+    public static HttpSession getHttpSession() {
+        HttpServletRequest request = getHttpServletRequest();
+        return request != null ? request.getSession(false) : null;
+    }
+
+    /**
+     * 获取客户端真实 IP 地址（考虑多层代理）
+     *
+     * @return IP 地址
+     */
+    public static String getClientIpAddress() {
+        HttpServletRequest request = getHttpServletRequest();
+        if (request == null) {
+            return null;
+        }
+
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip)) {
+            return ip.split(",")[0];
+        }
+
+        ip = request.getHeader("Proxy-Client-IP");
+        if (ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip)) {
+            return ip;
+        }
+
+        ip = request.getHeader("WL-Proxy-Client-IP");
+        if (ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip)) {
+            return ip;
+        }
+
+        return request.getRemoteAddr();
+    }
+
+    /**
+     * 获取 resources 目录下指定路径的资源
+     *
+     * <p>
+     * 示例：获取 resources/config/app.yml
+     * <pre>{@code
+     * Resource resource = SpringUtil.getResource("config/app.yml");
+     * }</pre>
+     * </p>
+     *
+     * @param path 相对于 resources 的路径
+     * @return Resource 对象
+     */
+    public static Resource getResource(String path) {
+        return getApplicationContext().getResource(CLASSPATH_PREFIX + path);
+    }
+
+    /**
+     * 获取 classpath 文件的输入流
+     *
+     * @param path 文件路径
+     * @return 输入流，未找到时返回 null
+     */
+    public static InputStream getResourceInputStream(String path) {
+        try {
+            return getResource(path).getInputStream();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 读取 classpath 文件内容为字符串
+     *
+     * @param path 文件路径
+     * @return 文件内容字符串，异常时返回 null
+     */
+    public static String getResourceReadString(String path) {
+        try (InputStream in = getResourceInputStream(path)) {
+            if (in == null) {
+                return null;
+            }
+            byte[] bytes = FileCopyUtils.copyToByteArray(in);
+            return new String(bytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 按行读取 classpath 文件内容
+     *
+     * @param path 文件路径
+     * @return 文件内容行列表，异常时返回 null
+     */
+    public static List<String> getResourceReadLines(String path) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(getResourceInputStream(path), StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.toList());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 读取 classpath 文件为字节数组
+     *
+     * @param path 文件路径
+     * @return 字节数组，异常时返回 null
+     */
+    public static byte[] getResourceReadBytes(String path) {
+        try (InputStream in = getResourceInputStream(path)) {
+            if (in == null) {
+                return null;
+            }
+            return FileCopyUtils.copyToByteArray(in);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

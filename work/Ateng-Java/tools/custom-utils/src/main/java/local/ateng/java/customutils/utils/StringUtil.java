@@ -22,6 +22,11 @@ import java.util.stream.Collectors;
 public final class StringUtil {
 
     /**
+     * 默认分隔符，逗号
+     */
+    public static final String DEFAULT_DELIMITER = ",";
+
+    /**
      * 禁止实例化工具类
      */
     private StringUtil() {
@@ -222,6 +227,48 @@ public final class StringUtil {
     }
 
     /**
+     * 将字符串按分隔符拆分为列表
+     *
+     * @param str       原始字符串
+     * @param delimiter 分隔符（如 ","）
+     * @return 拆分后的 List，空字符串返回空列表
+     */
+    public static List<String> splitToList(String str, String delimiter) {
+        if (str == null || str.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(str.split(Pattern.quote(delimiter)));
+    }
+
+    /**
+     * 将字符串按分隔符拆分为列表
+     *
+     * @param str 原始字符串
+     * @return 拆分后的 List，空字符串返回空列表
+     */
+    public static List<String> splitToList(String str) {
+        if (str == null || str.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(str.split(Pattern.quote(DEFAULT_DELIMITER)));
+    }
+
+    /**
+     * 将字符串按分隔符拆分为 Set，自动去重
+     *
+     * @param str       原始字符串
+     * @param delimiter 分隔符
+     * @return 拆分后的 Set
+     */
+    public static Set<String> splitToSet(String str, String delimiter) {
+        if (str == null || str.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return Arrays.stream(str.split(Pattern.quote(delimiter)))
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * 按指定分隔符分割字符串，并转换为指定类型的列表
      *
      * @param <T>       目标类型
@@ -253,6 +300,54 @@ public final class StringUtil {
         return result;
     }
 
+    /**
+     * 按默认分隔符分割字符串，并转换为指定类型的列表
+     *
+     * @param <T>       目标类型
+     * @param str       原始字符串
+     * @param converter 转换函数，将字符串转为 T 类型
+     * @return 转换成功的 T 类型列表，字符串为空或无有效元素时返回空列表
+     */
+    public static <T> List<T> splitToList(String str, Function<String, T> converter) {
+        return splitToList(str, DEFAULT_DELIMITER, converter);
+    }
+
+    /**
+     * 将字符串按分隔符拆分为指定类型的 List
+     *
+     * @param str         待拆分字符串
+     * @param delimiter   分隔符
+     * @param converter   转换函数，将每个分隔后的字符串转换为目标类型
+     * @param ignoreError 是否忽略转换异常，true 忽略并跳过错误数据，false 抛出异常
+     * @param <T>         目标类型
+     * @return 转换后的 List，输入为空返回空列表
+     */
+    public static <T> List<T> splitToList(String str, String delimiter, Function<String, T> converter, boolean ignoreError) {
+        if (str == null || str.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (delimiter == null || delimiter.isEmpty()) {
+            throw new IllegalArgumentException("分隔符不能为空");
+        }
+        if (converter == null) {
+            throw new IllegalArgumentException("转换函数不能为空");
+        }
+
+        String[] parts = str.split(delimiter);
+        List<T> result = new ArrayList<>(parts.length);
+
+        for (String part : parts) {
+            try {
+                result.add(converter.apply(part));
+            } catch (Exception e) {
+                if (!ignoreError) {
+                    throw e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
+                }
+                // 忽略错误时跳过该元素
+            }
+        }
+        return result;
+    }
 
     /**
      * 按指定分隔符拆分字符串并转换为 Integer 类型列表
@@ -311,19 +406,190 @@ public final class StringUtil {
         return splitToList(str, delimiter, s -> s);
     }
 
+    // ======================== 基础替换（Regex / Simple） ========================
+
     /**
-     * 替换字符串中的指定内容（可处理 null）
+     * 替换第一个匹配的子串（正则语义，等价于 {@link String#replaceFirst(String, String)}）。
+     * <p><b>注意：</b>本方法把 {@code target} 当作正则表达式解析；{@code replacement}
+     * 中的 {@code $}、{@code \} 等也遵循正则替换规则（如需安全替换请用 {@link #replaceSafeFirst(String, String, String)}）。</p>
      *
-     * @param str         原始字符串
-     * @param target      要替换的子串
-     * @param replacement 替换后的内容
-     * @return 替换后的结果字符串
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的<strong>正则</strong>模式
+     * @param replacement 替换内容（按正则替换语义解释）
+     * @return 替换后的字符串；若任一参数为 null，则返回原始 {@code str}
+     * @since 2025-08-15
      */
-    public static String replace(String str, String target, String replacement) {
+    public static String replaceFirst(String str, String target, String replacement) {
+        if (str == null || target == null || replacement == null) {
+            return str;
+        }
+        return str.replaceFirst(target, replacement);
+    }
+
+    /**
+     * 替换所有匹配的子串（正则语义，等价于 {@link String#replaceAll(String, String)}）。
+     * <p><b>注意：</b>本方法把 {@code target} 当作正则表达式解析；{@code replacement}
+     * 中的 {@code $}、{@code \} 等也遵循正则替换规则（如需安全替换请用 {@link #replaceSafeAll(String, String, String)}）。</p>
+     *
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的<strong>正则</strong>模式
+     * @param replacement 替换内容（按正则替换语义解释）
+     * @return 替换后的字符串；若任一参数为 null，则返回原始 {@code str}
+     * @since 2025-08-15
+     */
+    public static String replaceAllRegex(String str, String target, String replacement) {
+        if (str == null || target == null || replacement == null) {
+            return str;
+        }
+        return str.replaceAll(target, replacement);
+    }
+
+    /**
+     * 替换所有匹配的子串（<b>简单模式</b>，不使用正则；等价于 {@link String#replace(CharSequence, CharSequence)}）。
+     * <p>当你确认 {@code target} 只是普通文本（非正则）时，推荐使用该方法，效率更直接且无正则歧义。</p>
+     *
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的普通文本（非正则）
+     * @param replacement 替换内容（普通文本，不解析 $、\）
+     * @return 替换后的字符串；若任一参数为 null，则返回原始 {@code str}
+     * @since 2025-08-15
+     */
+    public static String replaceAllSimple(String str, String target, String replacement) {
         if (str == null || target == null || replacement == null) {
             return str;
         }
         return str.replace(target, replacement);
+    }
+
+    // ======================== 安全替换（自动转义 target & replacement） ========================
+
+    /**
+     * 安全地替换第一个匹配：对 {@code target} 做 {@link Pattern#quote(String)}，对 {@code replacement}
+     * 做 {@link Matcher#quoteReplacement(String)}，避免正则与替换串的特殊含义（如 {@code . * $ \}）。
+     *
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的文本（将被安全转义为字面量）
+     * @param replacement 替换内容（将被安全转义为字面量）
+     * @return 替换后的字符串；若任一参数为 null，则返回原始 {@code str}
+     * @since 2025-08-15
+     */
+    public static String replaceSafeFirst(String str, String target, String replacement) {
+        return replaceSafeInternal(str, target, replacement, false);
+    }
+
+    /**
+     * 安全地替换所有匹配：对 {@code target} 做 {@link Pattern#quote(String)}，对 {@code replacement}
+     * 做 {@link Matcher#quoteReplacement(String)}，避免正则与替换串的特殊含义（如 {@code . * $ \}）。
+     *
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的文本（将被安全转义为字面量）
+     * @param replacement 替换内容（将被安全转义为字面量）
+     * @return 替换后的字符串；若任一参数为 null，则返回原始 {@code str}
+     * @since 2025-08-15
+     */
+    public static String replaceSafeAll(String str, String target, String replacement) {
+        return replaceSafeInternal(str, target, replacement, true);
+    }
+
+    /**
+     * 安全替换（内部复用）：封装了正则与替换串的双重转义。
+     *
+     * @param str         原始字符串
+     * @param target      目标文本（按字面量处理）
+     * @param replacement 替换文本（按字面量处理）
+     * @param replaceAll  {@code true} 替换全部；{@code false} 仅替换第一个
+     * @return 替换结果或原样返回
+     */
+    private static String replaceSafeInternal(String str, String target, String replacement, boolean replaceAll) {
+        if (str == null || target == null || replacement == null) {
+            return str;
+        }
+        String quotedTarget = Pattern.quote(target);
+        String quotedReplacement = Matcher.quoteReplacement(replacement);
+        return replaceAll ? str.replaceAll(quotedTarget, quotedReplacement)
+                : str.replaceFirst(quotedTarget, quotedReplacement);
+    }
+
+    // ======================== 安全替换（忽略大小写） ========================
+
+    /**
+     * 安全地替换第一个匹配（忽略大小写）：目标按字面量匹配（安全转义），不区分大小写。
+     *
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的文本（按字面量处理，不区分大小写）
+     * @param replacement 替换内容（按字面量处理，自动转义 $、\）
+     * @return 替换后的字符串；若任一参数为 null，则返回原始 {@code str}
+     * @since 2025-08-15
+     */
+    public static String replaceSafeIgnoreCaseFirst(String str, String target, String replacement) {
+        return replaceSafeIgnoreCaseInternal(str, target, replacement, false);
+    }
+
+    /**
+     * 安全地替换所有匹配（忽略大小写）：目标按字面量匹配（安全转义），不区分大小写。
+     *
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的文本（按字面量处理，不区分大小写）
+     * @param replacement 替换内容（按字面量处理，自动转义 $、\）
+     * @return 替换后的字符串；若任一参数为 null，则返回原始 {@code str}
+     * @since 2025-08-15
+     */
+    public static String replaceSafeIgnoreCaseAll(String str, String target, String replacement) {
+        return replaceSafeIgnoreCaseInternal(str, target, replacement, true);
+    }
+
+    /**
+     * 安全忽略大小写替换（内部复用）。
+     *
+     * @param str         原始字符串
+     * @param target      目标文本（字面量匹配）
+     * @param replacement 替换文本（字面量替换）
+     * @param replaceAll  {@code true} 替换全部；{@code false} 仅替换第一个
+     * @return 替换结果或原样返回
+     */
+    private static String replaceSafeIgnoreCaseInternal(String str, String target, String replacement, boolean replaceAll) {
+        if (str == null || target == null || replacement == null) {
+            return str;
+        }
+        String regex = "(?i)" + Pattern.quote(target); // (?i) 忽略大小写
+        String quotedReplacement = Matcher.quoteReplacement(replacement);
+        return replaceAll ? str.replaceAll(regex, quotedReplacement)
+                : str.replaceFirst(regex, quotedReplacement);
+    }
+
+    // ======================== 安全替换（限制次数） ========================
+
+    /**
+     * 安全地按次数限制进行替换：目标与替换文本均按字面量处理，内部使用正则匹配并逐次替换。
+     * <p>
+     * 用于“只替换前 N 次”的场景。若 {@code limit} ≤ 0，原样返回 {@code str}。
+     * </p>
+     *
+     * @param str         原始字符串（null 将直接返回 null）
+     * @param target      要替换的文本（按字面量处理）
+     * @param replacement 替换内容（按字面量处理，自动转义 $、\）
+     * @param limit       替换次数上限（≤ 0 表示不替换；&gt; 匹配数时等价于替换全部）
+     * @return 替换后的字符串；若任一参数为 null 或 {@code limit} ≤ 0，则返回原始 {@code str}
+     * @since 2025-08-15
+     */
+    public static String replaceSafeLimit(String str, String target, String replacement, int limit) {
+        if (str == null || target == null || replacement == null || limit <= 0) {
+            return str;
+        }
+        String quotedTarget = Pattern.quote(target);
+        String quotedReplacement = Matcher.quoteReplacement(replacement);
+
+        Matcher matcher = Pattern.compile(quotedTarget).matcher(str);
+        StringBuffer sb = new StringBuffer();
+        int count = 0;
+        while (matcher.find()) {
+            if (++count > limit) {
+                break; // 超出限制，停止追加替换，后续保持原样
+            }
+            matcher.appendReplacement(sb, quotedReplacement);
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
     /**
@@ -332,7 +598,7 @@ public final class StringUtil {
      * @param str 原始字符串
      * @return 移除空白字符后的字符串
      */
-    public static String removeWhitespace(String str) {
+    public static String remove(String str) {
         if (isBlank(str)) {
             return "";
         }
@@ -346,7 +612,7 @@ public final class StringUtil {
      * @param charsToDel 要删除的字符（如",."）
      * @return 删除后的字符串
      */
-    public static String removeChars(String str, String charsToDel) {
+    public static String remove(String str, String charsToDel) {
         if (str == null || charsToDel == null) {
             return str;
         }
@@ -388,6 +654,105 @@ public final class StringUtil {
             return "";
         }
         return String.join(delimiter, elements);
+    }
+
+    /**
+     * 使用指定分隔符拼接集合中的字符串元素
+     *
+     * @param delimiter 分隔符
+     * @param elements  字符串集合
+     * @return 拼接结果，集合为空返回空字符串
+     */
+    public static String join(String delimiter, java.util.Collection<String> elements) {
+        if (elements == null || elements.isEmpty()) {
+            return "";
+        }
+        return String.join(delimiter, elements);
+    }
+
+    /**
+     * 使用指定分隔符拼接对象数组，每个对象调用 toString() 方法
+     *
+     * @param delimiter 分隔符
+     * @param elements  对象数组
+     * @return 拼接结果，对象为 null 会被转换为 "null"
+     */
+    public static String joinObjects(String delimiter, Object... elements) {
+        if (elements == null || elements.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < elements.length; i++) {
+            if (i > 0) {
+                sb.append(delimiter);
+            }
+            sb.append(elements[i] == null ? "null" : elements[i].toString());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 使用指定分隔符拼接集合中的对象元素，每个对象调用 toString() 方法
+     *
+     * @param delimiter 分隔符
+     * @param elements  对象集合
+     * @return 拼接结果，集合为空返回空字符串
+     */
+    public static String joinObjects(String delimiter, java.util.Collection<?> elements) {
+        if (elements == null || elements.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Object obj : elements) {
+            if (!first) {
+                sb.append(delimiter);
+            } else {
+                first = false;
+            }
+            sb.append(obj == null ? "null" : obj.toString());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 使用默认分隔符拼接字符串数组
+     *
+     * @param elements 字符串数组
+     * @return 拼接结果，数组为空返回空字符串
+     */
+    public static String join(String... elements) {
+        return join(DEFAULT_DELIMITER, elements);
+    }
+
+    /**
+     * 使用默认分隔符拼接字符串集合
+     *
+     * @param elements 字符串集合
+     * @return 拼接结果，集合为空返回空字符串
+     */
+    public static String join(java.util.Collection<String> elements) {
+        return join(DEFAULT_DELIMITER, elements);
+    }
+
+    /**
+     * 使用默认分隔符拼接对象数组
+     *
+     * @param elements 对象数组
+     * @return 拼接结果，数组为空返回空字符串
+     */
+    public static String joinObjects(Object... elements) {
+        return joinObjects(DEFAULT_DELIMITER, elements);
+    }
+
+    /**
+     * 使用默认分隔符拼接对象集合
+     *
+     * @param elements 对象集合
+     * @return 拼接结果，集合为空返回空字符串
+     */
+    public static String joinObjects(java.util.Collection<?> elements) {
+        return joinObjects(DEFAULT_DELIMITER, elements);
     }
 
     /**
@@ -546,17 +911,52 @@ public final class StringUtil {
      * HTML 字符转义（如 < 转为 &lt;）
      *
      * @param str 原始字符串
-     * @return 转义后的字符串
+     * @return 转义后的字符串，当传入为空时返回原值
      */
     public static String escapeHtml(String str) {
-        if (str == null) {
-            return null;
+        if (str == null || str.isEmpty()) {
+            return str;
         }
-        return str.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#x27;");
+        StringBuilder sb = new StringBuilder(str.length());
+        for (char c : str.toCharArray()) {
+            switch (c) {
+                case '&':
+                    sb.append("&amp;");
+                    break;
+                case '<':
+                    sb.append("&lt;");
+                    break;
+                case '>':
+                    sb.append("&gt;");
+                    break;
+                case '"':
+                    sb.append("&quot;");
+                    break;
+                case '\'':
+                    sb.append("&#x27;");
+                    break;
+                default:
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * HTML 字符还原（如 &lt; 还原为 <）
+     *
+     * @param str 转义后的字符串
+     * @return 还原后的字符串，当传入为空时返回原值
+     */
+    public static String unescapeHtml(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"")
+                .replace("&#x27;", "'")
+                .replace("&amp;", "&");
     }
 
     /**
@@ -566,10 +966,14 @@ public final class StringUtil {
      * @return 脱敏后的手机号，长度不为11时返回原始字符串
      */
     public static String maskPhone(String phone) {
-        final int PHONE_LENGTH = 11;       // 手机号固定长度
-        final int PREFIX_VISIBLE = 3;      // 前面可见位数
-        final int SUFFIX_VISIBLE = 4;      // 后面可见位数
-        final String MASK = "****";        // 中间脱敏符号
+        // 手机号固定长度
+        final int PHONE_LENGTH = 11;
+        // 前面可见位数
+        final int PREFIX_VISIBLE = 3;
+        // 后面可见位数
+        final int SUFFIX_VISIBLE = 4;
+        // 中间脱敏符号
+        final String MASK = "****";
 
         if (phone == null || phone.length() != PHONE_LENGTH) {
             return phone;
@@ -585,9 +989,12 @@ public final class StringUtil {
      * @return 脱敏后的身份证号，长度不足最小限制则返回原始字符串
      */
     public static String maskIdCard(String id) {
-        final int MIN_LENGTH = 8;  // 脱敏最小长度限制
-        final int PREFIX_VISIBLE = 3; // 前面可见长度
-        final int SUFFIX_VISIBLE = 4; // 后面可见长度
+        // 脱敏最小长度限制
+        final int MIN_LENGTH = 8;
+        // 前面可见长度
+        final int PREFIX_VISIBLE = 3;
+        // 后面可见长度
+        final int SUFFIX_VISIBLE = 4;
 
         if (id == null || id.length() < MIN_LENGTH) {
             return id;
@@ -727,7 +1134,8 @@ public final class StringUtil {
         if (unicodeStr == null) {
             return null;
         }
-        Pattern pattern = Pattern.compile("\\\\u([0-9a-fA-F]{4})");
+        String regex = "\\\\u([0-9a-fA-F]{4})";
+        Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(unicodeStr);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
@@ -975,16 +1383,192 @@ public final class StringUtil {
     }
 
     /**
-     * 验证URL格式（http/https，简单校验）
+     * 验证 URL 格式（http/https，支持域名/IP、端口、路径、查询参数、锚点）
      *
      * @param url URL 字符串
-     * @return 格式正确返回 true
+     * @return 格式正确返回 true，否则返回 false
      */
     public static boolean isUrl(String url) {
-        if (url == null) {
+        if (isEmpty(url)) {
             return false;
         }
-        return url.matches("^(https?://)?([\\w.-]+)(:[0-9]+)?(/[\\w./-]*)?$");
+        String regex =
+                // 协议
+                "^(https?://)"
+                        + "(([\\w-]+\\.)+[\\w-]{2,}|"
+                        // 域名或IP
+                        + "((25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(?!$)|$)){4})"
+                        // 端口
+                        + "(:\\d{1,5})?"
+                        // 路径、查询、锚点
+                        + "(/[^\\s]*)?$";
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(url.trim());
+        return matcher.matches();
+    }
+
+    /**
+     * 判断 URL 是否安全
+     * 1. 不能以危险协议（javascript:, data:, vbscript:）开头
+     * 2. 不能包含 HTML/JS 注入字符
+     * 3. 不能包含非 ASCII 可打印字符
+     *
+     * @param url URL 字符串
+     * @return 安全返回 true，不安全返回 false
+     */
+    public static boolean isSafeUrl(String url) {
+        if (isBlank(url)) {
+            return false;
+        }
+        String cleaned = url.trim().toLowerCase();
+
+        // 危险协议列表
+        String[] dangerousProtocols = { "javascript:", "data:", "vbscript:" };
+        // 注入字符正则
+        String injectionPattern = ".*[<>\"'`()].*";
+        // 非 ASCII 可打印字符正则
+        String nonAsciiPrintablePattern = ".*[^\\x20-\\x7E].*";
+
+        // 危险协议检测
+        for (String protocol : dangerousProtocols) {
+            if (cleaned.startsWith(protocol)) {
+                return false;
+            }
+        }
+
+        // 注入字符检测
+        if (url.matches(injectionPattern)) {
+            return false;
+        }
+
+        // 非 ASCII 可打印字符检测
+        if (url.matches(nonAsciiPrintablePattern)) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * 修复并安全过滤 URL
+     * 1. 去除首尾空格、换行、控制字符
+     * 2. 阻止危险协议（javascript:, data:, vbscript:）
+     * 3. 移除 HTML/JS 注入字符
+     * 4. 如果缺少协议，补全为 http://
+     * 5. 统一协议和域名部分为小写
+     * 6. 清理路径中多余的连续斜杠
+     *
+     * @param url 原始 URL
+     * @return 修复并安全过滤后的 URL，当传入为空或不安全时返回 null
+     */
+    public static String fixUrl(String url) {
+        if (isBlank(url)) {
+            return null;
+        }
+
+        // 正则表达式变量
+        final String CONTROL_WHITESPACE_PATTERN = "[\\p{Cntrl}\\s]+";
+        final String INJECTION_CHARS_PATTERN = "[<>\"'`()]";
+        final String NON_ASCII_PRINTABLE_PATTERN = "[^\\x20-\\x7E]";
+        final String HTTP_URL_PATTERN = "^(?i)https?://.*";
+
+        // 去掉控制字符和空白符，替换为单个空格并去首尾空格
+        String fixed = url.replaceAll(CONTROL_WHITESPACE_PATTERN, " ").trim();
+
+        // 不安全 URL 直接拒绝
+        if (!isSafeUrl(fixed)) {
+            return null;
+        }
+
+        // 移除 HTML/JS 注入字符
+        fixed = fixed.replaceAll(INJECTION_CHARS_PATTERN, "");
+
+        // 移除非 ASCII 可打印字符
+        fixed = fixed.replaceAll(NON_ASCII_PRINTABLE_PATTERN, "");
+
+        // 如果没有协议，补上 http://
+        if (!fixed.matches(HTTP_URL_PATTERN)) {
+            fixed = "http://" + fixed;
+        }
+
+        try {
+            java.net.URL parsedUrl = new java.net.URL(fixed);
+            String protocol = parsedUrl.getProtocol().toLowerCase();
+            String host = parsedUrl.getHost().toLowerCase();
+            int port = parsedUrl.getPort();
+            String path = parsedUrl.getPath().replaceAll("/{2,}", "/");
+            String query = parsedUrl.getQuery() != null ? "?" + parsedUrl.getQuery() : "";
+            String ref = parsedUrl.getRef() != null ? "#" + parsedUrl.getRef() : "";
+
+            // 组装安全规范化 URL
+            StringBuilder sb = new StringBuilder();
+            sb.append(protocol).append("://").append(host);
+            if (port != -1 && port != parsedUrl.getDefaultPort()) {
+                sb.append(":").append(port);
+            }
+            sb.append(path).append(query).append(ref);
+            return sb.toString();
+        } catch (Exception e) {
+            // 解析失败，认为不安全
+            return null;
+        }
+    }
+
+    /**
+     * 修正和规范路径字符串
+     * 1. 去除前后空格
+     * 2. 统一路径分隔符为 '/'
+     * 3. 去除多余的连续 '/'
+     * 4. 规范处理 '.' 和 '..'
+     *
+     * @param path 输入的路径字符串，可能是文件路径或URL路径
+     * @return 规范后的干净路径字符串
+     */
+    public static String fixPath(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return "";
+        }
+        // 去除前后空格
+        path = path.trim();
+        // 统一反斜杠为正斜杠
+        path = path.replace('\\', '/');
+        // 去除连续多余的斜杠，比如 /////
+        path = path.replaceAll("/+", "/");
+
+        // 处理相对路径 . 和 ..
+        String[] parts = path.split("/");
+        Deque<String> stack = new LinkedList<>();
+
+        for (String part : parts) {
+            if (part.equals("") || part.equals(".")) {
+                // 空或者当前目录，跳过
+                continue;
+            }
+            if (part.equals("..")) {
+                // 上一级目录，弹出栈顶（如果存在）
+                if (!stack.isEmpty()) {
+                    stack.pollLast();
+                }
+            } else {
+                // 正常目录，压入栈
+                stack.offerLast(part);
+            }
+        }
+
+        // 重新拼接路径
+        StringBuilder cleanPath = new StringBuilder();
+        for (String dir : stack) {
+            cleanPath.append("/").append(dir);
+        }
+
+        // 如果输入是绝对路径（以 '/' 开头），保留开头的 '/'
+        // 否则去掉开头的 '/'，返回相对路径
+        boolean isAbsolute = path.startsWith("/");
+        if (cleanPath.length() == 0) {
+            return isAbsolute ? "/" : "";
+        }
+        return isAbsolute ? cleanPath.toString() : cleanPath.substring(1);
     }
 
     /**
@@ -1105,7 +1689,8 @@ public final class StringUtil {
             sb.append(template, cursor, placeholderIndex);
             sb.append(args[argIndex] != null ? args[argIndex].toString() : "null");
 
-            cursor = placeholderIndex + 2; // 跳过"{}"
+            // 跳过"{}"
+            cursor = placeholderIndex + 2;
             argIndex++;
         }
 
