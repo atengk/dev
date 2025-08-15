@@ -11,6 +11,7 @@
     - [AOP切面](/work/Ateng-Java/springboot3/aop/)
     - [Docker插件](/work/Ateng-Java/springboot3/docker/)
     - [Email邮箱](/work/Ateng-Java/springboot3/email/)
+    - [Email邮箱-JDK8](/work/Ateng-Java/springboot3/email-jdk8/)
     - Admin 监控
         - [服务端](/work/Ateng-Java/springboot3/admin-server/)
         - [客户端](/work/Ateng-Java/springboot3/admin-client/)
@@ -27,6 +28,7 @@
     - [Stream](/work/Ateng-Java/tools/stream/)
     - [MapStructPlus](/work/Ateng-Java/tools/mapstruct-plus/)
     - [FastExcel](/work/Ateng-Java/tools/fast-excel/)
+    - [FastExcel-JDK8](/work/Ateng-Java/tools/fast-excel-jdk8/)
     - [Lombok](/work/Ateng-Java/tools/lombok/)
     - [异步编程](/work/Ateng-Java/tools/async/)
     - [自定义工具类](/work/Ateng-Java/tools/custom-utils/)
@@ -45,7 +47,9 @@
     - [PostGIS](/work/Ateng-Java/database/mybatis-flex-postgis/)
 - 缓存相关
     - [RedisTemplate](/work/Ateng-Java/cache/redis-template/)
+    - [RedisTemplate-JDK8](/work/Ateng-Java/cache/redis-template-jdk8/)
     - [Redisson](work/Ateng-Java/cache/redisson/)
+    - [Redisson-JDK8](work/Ateng-Java/cache/redisson-jdk8/)
     - [JetCache](/work/Ateng-Java/cache/jetcache/)
     - [Caffeine](/work/Ateng-Java/cache/caffeine/)
     - [SpringCache](/work/Ateng-Java/cache/spring-cache/)
