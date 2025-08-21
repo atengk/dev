@@ -1,14 +1,21 @@
 package local.ateng.java.customutils.utils;
 
+import local.ateng.java.customutils.enums.BaseEnum;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
+
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 /**
  * 通用枚举工具类（字段名不固定）
  * 通过反射按指定字段提取枚举值，适配任意结构枚举类
- *
+ * <p>
  * 使用场景：字段名不统一，例如 code/value/id，name/label/text 等
  *
  * @author Ateng
@@ -23,10 +30,10 @@ public final class EnumUtil {
     /**
      * 根据字段值获取枚举实例
      *
-     * @param enumClass 枚举类
-     * @param fieldName 要匹配的字段名（如 code、value、key）
+     * @param enumClass   枚举类
+     * @param fieldName   要匹配的字段名（如 code、value、key）
      * @param targetValue 目标值
-     * @param <E> 枚举类型
+     * @param <E>         枚举类型
      * @return 匹配的枚举实例，未找到返回 null
      */
     public static <E extends Enum<E>> E getByFieldValue(Class<E> enumClass, String fieldName, Object targetValue) {
@@ -58,10 +65,10 @@ public final class EnumUtil {
     /**
      * 枚举字段映射（如：code -> name，或者 id -> label）
      *
-     * @param enumClass 枚举类
-     * @param keyField  key 字段名
+     * @param enumClass  枚举类
+     * @param keyField   key 字段名
      * @param valueField value 字段名
-     * @param <E> 枚举类型
+     * @param <E>        枚举类型
      * @return 映射表（keyField 对应值 -> valueField 对应值）
      */
     public static <E extends Enum<E>> Map<Object, Object> mapFieldToField(Class<E> enumClass, String keyField, String valueField) {
@@ -90,7 +97,7 @@ public final class EnumUtil {
      *
      * @param enumClass 枚举类
      * @param fieldName 字段名（如 value、code、label）
-     * @param <E> 枚举类型
+     * @param <E>       枚举类型
      * @return 字段值列表
      */
     public static <E extends Enum<E>> java.util.List<Object> getFieldValueList(Class<E> enumClass, String fieldName) {
@@ -114,7 +121,7 @@ public final class EnumUtil {
      *
      * @param enumClass 枚举类
      * @param fieldName 字段名（如 label、text、desc）
-     * @param <E> 枚举类型
+     * @param <E>       枚举类型
      * @return 映射表（枚举名 -> 字段值）
      */
     public static <E extends Enum<E>> Map<String, Object> nameToFieldValueMap(Class<E> enumClass, String fieldName) {
@@ -138,7 +145,7 @@ public final class EnumUtil {
      *
      * @param enumClass 枚举类
      * @param fields    字段名数组（如 {"value", "label"}）
-     * @param <E> 枚举类型
+     * @param <E>       枚举类型
      * @return List<Map> 格式数据，每个 Map 表示一个枚举项的字段值
      */
     public static <E extends Enum<E>> java.util.List<Map<String, Object>> toListMap(Class<E> enumClass, String... fields) {
@@ -259,7 +266,8 @@ public final class EnumUtil {
             for (E e : enumClass.getEnumConstants()) {
                 Object val = field.get(e);
                 if (!seen.add(val)) {
-                    return false; // 出现重复
+                    // 出现重复
+                    return false;
                 }
             }
             return true;
@@ -267,5 +275,332 @@ public final class EnumUtil {
             return false;
         }
     }
+
+    /**
+     * 将枚举类转换为 Map，指定枚举中的两个字段作为 key 和 value
+     *
+     * @param keyField   作为 key 的字段名（对应 getter 方法）
+     * @param valueField 作为 value 的字段名（对应 getter 方法）
+     * @param enumClass  枚举类
+     * @param <E>        枚举类型
+     * @param <K>        Map 的 key 类型
+     * @param <V>        Map 的 value 类型
+     * @return 枚举转 Map
+     */
+    public static <E extends Enum<E>, K, V> Map<K, V> toMap(String keyField, String valueField, Class<E> enumClass) {
+        try {
+            // 通过反射获取 getter 方法
+            Method keyMethod = enumClass.getMethod("get" + capitalize(keyField));
+            Method valueMethod = enumClass.getMethod("get" + capitalize(valueField));
+
+            return Arrays.stream(enumClass.getEnumConstants())
+                    .collect(Collectors.toMap(
+                            e -> invokeMethod(e, keyMethod),
+                            e -> invokeMethod(e, valueMethod)
+                    ));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("枚举转 Map 失败，请检查字段是否存在对应 getter 方法", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T invokeMethod(Object target, Method method) {
+        try {
+            return (T) method.invoke(target);
+        } catch (Exception e) {
+            throw new RuntimeException("反射调用方法失败: " + method.getName(), e);
+        }
+    }
+
+    private static String capitalize(String fieldName) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            return fieldName;
+        }
+        return Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+    }
+
+    /**
+     * 将指定枚举类转换为前端常用的 List<Map<String, Object>> 格式。
+     * <p>
+     * 每个 Map 包含两个固定键：
+     * <ul>
+     *     <li>value: 对应枚举的指定字段值（如 code、id、value）</li>
+     *     <li>label: 对应枚举的指定字段值（如 name、label、desc）</li>
+     * </ul>
+     * <p>
+     * 典型应用场景：
+     * <ul>
+     *     <li>前端下拉框、单选/多选组件数据源</li>
+     *     <li>数据字典展示</li>
+     * </ul>
+     * <p>
+     * 注意：
+     * <ul>
+     *     <li>枚举字段必须有对应的 public getter 方法，如 getCode()、getLabel() 等</li>
+     *     <li>字段名参数需传入属性名（非方法名），方法内部会自动拼接 "get" 前缀反射调用</li>
+     *     <li>若枚举类或字段不存在，会抛出 IllegalArgumentException</li>
+     * </ul>
+     *
+     * @param valueField 枚举中作为 value 的字段名（对应 getter 方法）
+     * @param labelField 枚举中作为 label 的字段名（对应 getter 方法）
+     * @param enumClass  需要转换的枚举类
+     * @param <E>        枚举类型
+     * @return 返回 List<Map<String, Object>>，每个 Map 包含键 "value" 和 "label"
+     * @throws IllegalArgumentException 如果枚举类或字段不存在，或 getter 方法不可访问
+     */
+    public static <E extends Enum<E>> List<Map<String, Object>> toLabelValueList(String valueField, String labelField, Class<E> enumClass) {
+        Map<Object, Object> map = toMap(valueField, labelField, enumClass);
+        List<Map<String, Object>> list = new ArrayList<>();
+        String valueKey = "value";
+        String labelKey = "label";
+        for (Map.Entry<Object, Object> entry : map.entrySet()) {
+            Map<String, Object> item = new HashMap<>();
+
+            item.put(valueKey, entry.getKey());
+            item.put(labelKey, entry.getValue());
+
+            list.add(item);
+        }
+        return list;
+    }
+
+    /**
+     * 将多个枚举类批量转换为前端常用的 Map<String, List<Map<String, Object>>> 格式。
+     * <p>
+     * 每个枚举类会生成一组数据，存放在 Map 中，key 为枚举类的简单类名，
+     * value 为对应的枚举值列表，每个元素是一个 Map，包含：
+     * <ul>
+     *     <li>value: 对应枚举的指定字段值（如 code、id、value）</li>
+     *     <li>label: 对应枚举的指定字段值（如 name、label、desc）</li>
+     * </ul>
+     * <p>
+     * 典型应用场景：
+     * <ul>
+     *     <li>前端批量加载字典数据</li>
+     *     <li>枚举映射表展示</li>
+     * </ul>
+     * <p>
+     * 注意：
+     * <ul>
+     *     <li>枚举字段必须有对应的 public getter 方法，如 getCode()、getLabel() 等</li>
+     *     <li>字段名参数需传入属性名（非方法名），方法内部会自动拼接 "get" 前缀反射调用</li>
+     *     <li>若枚举类或字段不存在，会抛出 IllegalArgumentException</li>
+     * </ul>
+     *
+     * @param valueField  枚举中作为 value 的字段名（对应 getter 方法）
+     * @param labelField  枚举中作为 label 的字段名（对应 getter 方法）
+     * @param enumClasses 需要转换的枚举类数组
+     * @return Map，key 为枚举类名value 为对应的 List<Map<String, Object>>
+     * @throws IllegalArgumentException 如果枚举类或字段不存在，或 getter 方法不可访问
+     */
+    @SafeVarargs
+    public static Map<String, List<Map<String, Object>>> toMultiLabelValueMap(
+            String valueField, String labelField, Class<? extends Enum<?>>... enumClasses) {
+        Map<String, List<Map<String, Object>>> result = new LinkedHashMap<>();
+
+        for (Class<? extends Enum<?>> enumClassRaw : enumClasses) {
+            // 调用辅助方法，避免泛型捕获问题
+            List<Map<String, Object>> list = toLabelValueListInternal(valueField, labelField, enumClassRaw);
+
+            String key = enumClassRaw.getSimpleName();
+            result.put(key, list);
+        }
+
+        return result;
+    }
+
+    /**
+     * 将枚举类转换为 List<Map<String, Object>>（内部方法，用于解决泛型捕获问题）。
+     * <p>
+     * 该方法主要作为 {@link #toMultiLabelValueMap(String, String, Class[])} 的内部实现，
+     * 对传入的原始枚举类进行安全类型转换，再调用通用的 {@code toLabelValueList} 方法。
+     *
+     * @param valueField   枚举中作为 value 的字段名（对应 getter 方法）
+     * @param labelField   枚举中作为 label 的字段名（对应 getter 方法）
+     * @param enumClassRaw 原始枚举类（Class<?> 类型）
+     * @param <E>          枚举泛型类型
+     * @return 转换后的枚举列表，每个元素为包含 value 和 label 的 Map
+     */
+    @SuppressWarnings("unchecked")
+    private static <E extends Enum<E>> List<Map<String, Object>> toLabelValueListInternal(
+            String valueField,
+            String labelField,
+            Class<?> enumClassRaw) {
+
+        return toLabelValueList(valueField, labelField, (Class<E>) enumClassRaw);
+    }
+
+
+    /**
+     * 扫描指定包下所有实现 {@link BaseEnum} 接口的枚举类
+     *
+     * @param basePackage 包名，例如 "com.example.enums"
+     * @return Set&lt;Class&lt;? extends BaseEnum&gt;&gt; 扫描到的枚举类集合
+     */
+    @SuppressWarnings("unchecked")
+    public static Set<Class<? extends BaseEnum<?, ?>>> scanAllBaseEnums(String basePackage) {
+        Set<Class<? extends BaseEnum<?, ?>>> result = new HashSet<>();
+        char dotChar = '.';
+        char slashChar = '/';
+        String classPattern = "/**/*.class";
+        String classpathAllPrefix = "classpath*:";
+        try {
+            String pattern = basePackage.replace(dotChar, slashChar) + classPattern;
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            SimpleMetadataReaderFactory factory = new SimpleMetadataReaderFactory();
+
+            for (Resource resource : resolver.getResources(classpathAllPrefix + pattern)) {
+                if (resource.isReadable()) {
+                    MetadataReader reader = factory.getMetadataReader(resource);
+                    String className = reader.getClassMetadata().getClassName();
+                    Class<?> clazz = Class.forName(className);
+                    if (BaseEnum.class.isAssignableFrom(clazz) && clazz.isEnum()) {
+                        result.add((Class<? extends BaseEnum<?, ?>>) clazz);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("扫描枚举失败", e);
+        }
+        return result;
+    }
+
+    /**
+     * 扫描指定包下所有实现 BaseEnum 接口的枚举类，并转换成前端 label/value Map
+     *
+     * @param basePackage 扫描的包名，例如 "com.example.enums"
+     * @return Map，key 为枚举类名，value 为对应枚举列表
+     */
+    public static Map<String, List<Map<String, Object>>> getAllBaseEnumMap(String basePackage) {
+        // 1. 扫描所有 BaseEnum 枚举类
+        Set<Class<? extends BaseEnum<?, ?>>> enumClasses = scanAllBaseEnums(basePackage);
+
+        // 2. 转换成前端需要的 Map<String, List<Map<String,Object>>>
+        String codeKey = "code";
+        String nameKey = "name";
+        return toMultiLabelValueMap(codeKey, nameKey, enumClasses.toArray(new Class[0]));
+    }
+
+    /**
+     * 扫描默认包（Spring Boot 启动类所在包）下的 BaseEnum 枚举类，并转换为前端 Map
+     *
+     * @return Map，key 为枚举类名，value 为对应 label/value 列表
+     */
+    public static Map<String, List<Map<String, Object>>> getAllBaseEnumMap() {
+        // 获取 Spring Boot 启动类所在包
+        String basePackage = SpringUtil.getMainApplicationPackage();
+        return getAllBaseEnumMap(basePackage);
+    }
+
+    /**
+     * 扫描默认包（Spring Boot 启动类所在包）下的 BaseEnum 枚举类，并转换为前端 Map
+     *
+     * @param mainClazz 启动类 Class 对象
+     * @return Map，key 为枚举类名，value 为对应 label/value 列表
+     */
+    public static Map<String, List<Map<String, Object>>> getAllBaseEnumMap(Class<?> mainClazz) {
+        // 获取 Spring Boot 启动类所在包
+        String basePackage = SpringUtil.getMainApplicationPackage(mainClazz);
+        return getAllBaseEnumMap(basePackage);
+    }
+
+    /**
+     * 根据枚举类名获取对应的前端 label/value 列表
+     *
+     * <p>内部复用 {@link #getAllBaseEnumMap()}，不需要额外扫描包路径。
+     *
+     * <p>示例：
+     * <pre>
+     *     List<Map<String, Object>> list = EnumUtil.getLabelValueListByEnumName("StatusEnum");
+     * </pre>
+     *
+     * <p>返回值格式：
+     * <pre>
+     *     [
+     *       {"value": 0, "label": "离线"},
+     *       {"value": 1, "label": "在线"}
+     *     ]
+     * </pre>
+     *
+     * @param enumSimpleName 枚举类简单名，例如 "StatusEnum"
+     * @return 前端 label/value 列表，如果未找到对应枚举类，返回空列表
+     */
+    public static List<Map<String, Object>> getLabelValueListByEnumName(String enumSimpleName) {
+        if (enumSimpleName == null || enumSimpleName.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 获取所有 BaseEnum 枚举映射
+        Map<String, List<Map<String, Object>>> allEnums = getAllBaseEnumMap();
+
+        return allEnums.getOrDefault(enumSimpleName, Collections.emptyList());
+    }
+
+    /**
+     * 根据枚举类名获取对应的前端 label/value 列表
+     *
+     * <p>内部复用 {@link #getAllBaseEnumMap()}，不需要额外扫描包路径。
+     *
+     * <p>示例：
+     * <pre>
+     *     List<Map<String, Object>> list = EnumUtil.getLabelValueListByEnumName("StatusEnum");
+     * </pre>
+     *
+     * <p>返回值格式：
+     * <pre>
+     *     [
+     *       {"value": 0, "label": "离线"},
+     *       {"value": 1, "label": "在线"}
+     *     ]
+     * </pre>
+     *
+     * @param enumSimpleName 枚举类简单名，例如 "StatusEnum"
+     * @param mainClazz      启动类 Class 对象
+     * @return 前端 label/value 列表，如果未找到对应枚举类，返回空列表
+     */
+    public static List<Map<String, Object>> getLabelValueListByEnumName(String enumSimpleName, Class<?> mainClazz) {
+        if (enumSimpleName == null || enumSimpleName.trim().isEmpty() || mainClazz == null) {
+            return Collections.emptyList();
+        }
+
+        // 获取所有 BaseEnum 枚举映射
+        Map<String, List<Map<String, Object>>> allEnums = getAllBaseEnumMap(mainClazz);
+
+        return allEnums.getOrDefault(enumSimpleName, Collections.emptyList());
+    }
+
+    /**
+     * 根据枚举类名获取对应的前端 label/value 列表
+     *
+     * <p>内部复用 {@link #getAllBaseEnumMap()}，不需要额外扫描包路径。
+     *
+     * <p>示例：
+     * <pre>
+     *     List<Map<String, Object>> list = EnumUtil.getLabelValueListByEnumName("StatusEnum");
+     * </pre>
+     *
+     * <p>返回值格式：
+     * <pre>
+     *     [
+     *       {"value": 0, "label": "离线"},
+     *       {"value": 1, "label": "在线"}
+     *     ]
+     * </pre>
+     *
+     * @param enumSimpleName 枚举类简单名，例如 "StatusEnum"
+     * @param basePackage    扫描的包名，例如 "com.example.enums"
+     * @return 前端 label/value 列表，如果未找到对应枚举类，返回空列表
+     */
+    public static List<Map<String, Object>> getLabelValueListByEnumName(String enumSimpleName, String basePackage) {
+        if (enumSimpleName == null || enumSimpleName.trim().isEmpty() || basePackage == null || basePackage.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 获取所有 BaseEnum 枚举映射
+        Map<String, List<Map<String, Object>>> allEnums = getAllBaseEnumMap(basePackage);
+
+        return allEnums.getOrDefault(enumSimpleName, Collections.emptyList());
+    }
+
 
 }

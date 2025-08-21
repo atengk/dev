@@ -632,6 +632,183 @@ create table my_json
 </mapper>
 ```
 
+## 枚举字段
+
+### 创建枚举
+
+根据框架使用的序列化来选择：
+
+- Jackson 版本
+- Fastjson1 版本
+
+- Fastjson2 版本
+
+```java
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
+public enum StatusEnum {
+
+    OFFLINE(0, "离线"),
+    ONLINE(1, "在线");
+
+    @EnumValue
+    private final int code;
+    //@JsonValue // Jackson
+    //@JSONField(value = true) // Fastjson2
+    private final String name;
+
+    @JSONField // Fastjson1
+    public String getValue() {
+        return this.name;
+    }
+
+}
+```
+
+#### Jackson 版本
+
+```java
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * 状态枚举（Jackson 序列化版本）
+ * <p>
+ * Jackson 序列化会将枚举输出为 name 字符串，数据库存储使用 code。
+ */
+@AllArgsConstructor
+@Getter
+public enum StatusEnumJackson {
+
+    OFFLINE(0, "离线"),
+    ONLINE(1, "在线");
+
+    /**
+     * 数据库存储字段：状态编码
+     */
+    @EnumValue
+    private final int code;
+
+    /**
+     * 前端展示字段：状态名称
+     * <p>
+     * Jackson 序列化使用此字段
+     */
+    @JsonValue
+    private final String name;
+}
+
+```
+
+#### Fastjson1 版本
+
+```java
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * 状态枚举（Fastjson1 序列化版本）
+ * <p>
+ * Fastjson1 不支持字段注解序列化，需要通过 getter 方法标记 {@link JSONField}。
+ */
+@AllArgsConstructor
+@Getter
+public enum StatusEnumFastjson1 {
+
+    OFFLINE(0, "离线"),
+    ONLINE(1, "在线");
+
+    /**
+     * 数据库存储字段：状态编码
+     */
+    @EnumValue
+    private final int code;
+
+    /**
+     * 前端展示字段：状态名称
+     */
+    private final String name;
+
+    /**
+     * Fastjson1 序列化使用 getter
+     */
+    @JSONField
+    public String getValue() {
+        return this.name;
+    }
+}
+
+```
+
+#### Fastjson2 版本
+
+```java
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * 状态枚举（Fastjson2 序列化版本）
+ * <p>
+ * Fastjson2 支持字段上使用 {@link JSONField(value = true)} 来序列化枚举为 name。
+ */
+@AllArgsConstructor
+@Getter
+public enum StatusEnumFastjson2 {
+
+    OFFLINE(0, "离线"),
+    ONLINE(1, "在线");
+
+    /**
+     * 数据库存储字段：状态编码
+     */
+    @EnumValue
+    private final int code;
+
+    /**
+     * 前端展示字段：状态名称
+     * <p>
+     * Fastjson2 序列化使用此字段
+     */
+    @JSONField(value = true)
+    private final String name;
+}
+
+```
+
+### 数据库实体字段
+
+直接将枚举字段的类型修改为相关的枚举，这样新增到数据库时，实际存入的是枚举的code，通过接口将数据序列化出去返回的事枚举的name。
+
+```java
+@TableField("status")
+private StatusEnum status;
+```
+
+### 枚举字典
+
+通过 `EnumUtil.getAllBaseEnumMap()` 方法获取到相关枚举的字典，返回给前端
+
+### 数据流总结
+
+| 流程            | 数据类型       | 说明                      |
+| --------------- | -------------- | ------------------------- |
+| 后端 → 前端展示 | name（字符串） | 用户看到可读标签          |
+| 前端下拉选择    | code（整数）   | 用户选择后，前端提交 code |
+| 前端 → 后端提交 | code（整数）   | MyBatis-Plus 存入数据库   |
+| 数据库存储      | code（整数）   | 枚举在 DB 中存 code       |
+| GET 接口返回    | name（字符串） | 方便展示                  |
+
 
 
 ## 多数据源
@@ -736,6 +913,22 @@ public class UserServiceImpl implements UserService {
 
 
 ## 使用Mapper XML
+
+### 开始
+
+#### ${ew.sqlSegment} 和 ${ew.customSqlSegment} 区别
+
+- **普通 XML 自定义分页、多条件查询** → 用 `${ew.customSqlSegment}`（简单、省心）
+- **复杂 SQL、JOIN 场景中部分条件需要自己控制位置** → 用 `${ew.sqlSegment}`（更灵活）
+
+| 特性                   | `ew.sqlSegment`       | `ew.customSqlSegment` |
+| ---------------------- | --------------------- | --------------------- |
+| 是否包含 `WHERE`/`AND` | ❌ 否                  | ✅ 自动加              |
+| 是否包含排序、分组     | ❌ 一般不包含          | ✅ 包含                |
+| 是否包含逻辑删除条件   | ✅ 包含                | ✅ 包含                |
+| 适用场景               | 自己完全控制 SQL 结构 | 快速接在 FROM 后面    |
+
+
 
 ### 基本使用
 
@@ -1320,6 +1513,123 @@ SELECT
          WHERE 0 = 0 and
             (city LIKE '%重%' AND u.id = 1) ORDER BY u.id ASC LIMIT 3;
 Page{records=[{"id":1,"name":"阿腾","age":25,"score":99.99,"birthday":"2025-01-24 00:00:00","province":"重庆","city":"重庆","create_time":"2025-01-24 22:33:08.822","order_id":542,"order_date":"2007-05-08","order_total_amount":398.58}, {"id":1,"name":"阿腾","age":25,"score":99.99,"birthday":"2025-01-24 00:00:00","province":"重庆","city":"重庆","create_time":"2025-01-24 22:33:08.822","order_id":973,"order_date":"2008-10-27","order_total_amount":830.81}], total=2, size=3, current=1, orders=[], optimizeCountSql=true, searchCount=true, optimizeJoinOfCountSql=true, maxLimit=null, countId='selectUsersWithOrderPageWrapperCount'}
+```
+
+### 使用Wrapper+自定义查询条件
+
+使用 LambdaQueryWrapper 比 QueryWrapper 的好处是，能将实体类字段名称自动映射为数据库表字段名称。
+
+#### 创建Mapper
+
+**重点：** 参数名仍然必须是 `"ew"`，MyBatis-Plus 才能识别并自动拼接条件。
+
+```java
+public interface MyUserMapper extends BaseMapper<MyUser> {
+
+    // 分页查询，传入wrapper、自定义查询条件
+    IPage<JSONObject> selectUsersWithOrderPageWrapperQuery(IPage page, @Param(Constants.WRAPPER) Wrapper wrapper, @Param("query") Map<String, Object> query);
+
+}
+```
+
+#### 创建Mapper.xml
+
+传 `wrapper` 给自定义 SQL 时，在where条件中加 `${ew.sqlSegment}`。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="local.ateng.java.mybatisjdk8.mapper.MyUserMapper">
+
+   <select id="selectUsersWithOrderPageWrapperQuery" resultType="com.alibaba.fastjson2.JSONObject">
+        with my_table as (
+            SELECT
+                u.id as id,
+                u.name,
+                u.age,
+                u.score,
+                u.birthday,
+                u.province,
+                u.city,
+                u.create_time,
+                o.id as order_id,
+                o.date as order_date,
+                o.total_amount as order_total_amount
+            FROM my_user u
+                LEFT JOIN my_order o ON u.id = o.user_id
+            <if test="query._id != null">
+                and u.id = #{query._id}
+            </if>
+        ) select * from my_table
+        ${ew.customSqlSegment}
+    </select>
+
+</mapper>
+```
+
+#### 测试使用
+
+```java
+    @Test
+    void test08() {
+        LambdaQueryWrapper<MyUser> wrapper = Wrappers.lambdaQuery();
+        wrapper.like(MyUser::getCity, "重");
+        IPage<JSONObject> page = new Page(1, 3);
+        Map<String, Object> map = new HashMap<>();
+        map.put("_id", 1);
+        page = myUserMapper.selectUsersWithOrderPageWrapperQuery(page, wrapper, map);
+        System.out.println(page);
+    }
+```
+
+输出内容
+
+```
+2025-08-15T17:46:56.304+08:00  INFO 13076 --- [mybatis-plus] [           main] p6spy                                    : #1755251216304 | took 40ms | statement | connection 0| url jdbc:mysql://192.168.1.10:35725/kongyu
+WITH my_table AS (SELECT u.id AS id, u.name, u.age, u.score, u.birthday, u.province, u.city, u.create_time, o.id AS order_id, o.date AS order_date, o.total_amount AS order_total_amount FROM my_user u LEFT JOIN my_order o ON u.id = o.user_id AND u.id = ?) SELECT COUNT(*) AS total FROM my_table WHERE (city LIKE ?)
+WITH my_table AS (SELECT u.id AS id, u.name, u.age, u.score, u.birthday, u.province, u.city, u.create_time, o.id AS order_id, o.date AS order_date, o.total_amount AS order_total_amount FROM my_user u LEFT JOIN my_order o ON u.id = o.user_id AND u.id = 1) SELECT COUNT(*) AS total FROM my_table WHERE (city LIKE '%重%');
+2025-08-15T17:46:56.354+08:00  INFO 13076 --- [mybatis-plus] [           main] p6spy                                    : #1755251216354 | took 33ms | statement | connection 0| url jdbc:mysql://192.168.1.10:35725/kongyu
+with my_table as (
+            SELECT
+                u.id as id,
+                u.name,
+                u.age,
+                u.score,
+                u.birthday,
+                u.province,
+                u.city,
+                u.create_time,
+                o.id as order_id,
+                o.date as order_date,
+                o.total_amount as order_total_amount
+            FROM my_user u
+                LEFT JOIN my_order o ON u.id = o.user_id
+             
+                and u.id = ?
+             
+        ) select * from my_table
+        WHERE (city LIKE ?) LIMIT ?
+with my_table as (
+            SELECT
+                u.id as id,
+                u.name,
+                u.age,
+                u.score,
+                u.birthday,
+                u.province,
+                u.city,
+                u.create_time,
+                o.id as order_id,
+                o.date as order_date,
+                o.total_amount as order_total_amount
+            FROM my_user u
+                LEFT JOIN my_order o ON u.id = o.user_id
+             
+                and u.id = 1
+             
+        ) select * from my_table
+        WHERE (city LIKE '%重%') LIMIT 3;
+Page{records=[{"id":1,"name":"阿腾","age":25,"score":99.99,"birthday":"2025-01-24 00:00:00","province":"重庆","city":"重庆","create_time":"2025-01-24 22:33:08.822","order_id":542,"order_date":"2007-05-08","order_total_amount":398.58}, {"id":1,"name":"阿腾","age":25,"score":99.99,"birthday":"2025-01-24 00:00:00","province":"重庆","city":"重庆","create_time":"2025-01-24 22:33:08.822","order_id":973,"order_date":"2008-10-27","order_total_amount":830.81}, {"id":2,"name":"阿腾","age":25,"score":99.99,"birthday":"2025-01-24 00:00:00","province":"重庆","city":"重庆"}], total=86, size=3, current=1, orders=[], optimizeCountSql=true, searchCount=true, optimizeJoinOfCountSql=true, maxLimit=null, countId='null'}
 ```
 
 

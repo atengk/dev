@@ -2,10 +2,12 @@ package local.ateng.java.customutils.utils;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.*;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
@@ -310,11 +312,11 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
      */
     public static long getPid() {
         // 分隔符，用于提取 PID
-        final String PID_SEPARATOR = "@";
+        final String atSymbol = "@";
         try {
             String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-            if (jvmName != null && jvmName.contains(PID_SEPARATOR)) {
-                return Long.parseLong(jvmName.split(PID_SEPARATOR)[0]);
+            if (jvmName != null && jvmName.contains(atSymbol)) {
+                return Long.parseLong(jvmName.split(atSymbol)[0]);
             }
         } catch (Exception ignored) {
         }
@@ -691,6 +693,74 @@ public final class SpringUtil implements ApplicationContextAware, ApplicationEve
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * 获取 Spring Boot 启动类所在的基础包名。
+     *
+     * <p>
+     * 该方法通过扫描 Spring 容器中所有 Bean，查找带有
+     * {@link SpringBootApplication} 注解的类，并返回该类所在的包名。
+     * </p>
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     * String mainPackage = SpringUtil.getMainApplicationPackage();
+     * System.out.println("主包路径：" + mainPackage);
+     * }</pre>
+     *
+     * <p><b>注意事项：</b></p>
+     * <ul>
+     *     <li>如果启动类使用了自定义组合注解（例如 @MySpringCloudApplication 包含 @SpringBootApplication），
+     *     该方法可能返回 null，因为启动类未注册为普通 Bean。</li>
+     *     <li>对于代理类或工厂生成的 Bean，{@code beanClass.getPackage()} 可能为 null。</li>
+     *     <li>因此该方法仅在启动类本身被 Spring 容器扫描为 Bean 的场景下可靠。</li>
+     * </ul>
+     *
+     * @return 启动类所在的根包名，例如 "com.example.project"，获取失败返回 null
+     */
+    public static String getMainApplicationPackage() {
+        try {
+            ApplicationContext context = getApplicationContext();
+            if (context != null) {
+                String[] beanNames = context.getBeanDefinitionNames();
+                for (String beanName : beanNames) {
+                    Class<?> beanClass = context.getType(beanName);
+                    if (beanClass != null &&
+                            AnnotationUtils.findAnnotation(beanClass, SpringBootApplication.class) != null) {
+                        return beanClass.getPackage().getName();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * 获取指定启动类所在的基础包名。
+     *
+     * <p>
+     * 该方法直接使用启动类 Class 对象获取包名，更加可靠，适用于以下场景：
+     * </p>
+     *
+     * <ul>
+     *     <li>启动类未注册为 Spring Bean</li>
+     *     <li>使用自定义组合注解（@MySpringCloudApplication）</li>
+     *     <li>存在代理类或工厂 Bean，避免 getPackage() 返回 null</li>
+     * </ul>
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     * String mainPackage = SpringUtil.getMainApplicationPackage(MyCaApplication.class);
+     * System.out.println("主包路径：" + mainPackage);
+     * }</pre>
+     *
+     * @param mainClazz 启动类 Class 对象
+     * @return 启动类所在包名，如果参数为 null 则返回 null
+     */
+    public static String getMainApplicationPackage(Class<?> mainClazz) {
+        return mainClazz != null ? mainClazz.getPackage().getName() : null;
     }
 
 }

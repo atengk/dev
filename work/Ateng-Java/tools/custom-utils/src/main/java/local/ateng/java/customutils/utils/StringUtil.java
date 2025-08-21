@@ -220,10 +220,30 @@ public final class StringUtil {
      * @return 分割后的字符串数组
      */
     public static String[] split(String str, String delimiter) {
-        if (isBlank(str) || delimiter == null) {
+        return split(str, delimiter, true);
+    }
+
+    /**
+     * 将字符串按分隔符分割成数组
+     * <p>支持自动去掉首尾空格，并可选择是否忽略空元素</p>
+     *
+     * @param str         原始字符串
+     * @param delimiter   分隔符
+     * @param ignoreEmpty 是否忽略空元素
+     * @return 分割后的数组，空字符串或 null 返回空数组
+     */
+    public static String[] split(String str, String delimiter, boolean ignoreEmpty) {
+        if (str == null || str.trim().isEmpty() || delimiter == null) {
             return new String[0];
         }
-        return str.split(Pattern.quote(delimiter));
+        String[] parts = str.split(Pattern.quote(delimiter));
+        if (!ignoreEmpty) {
+            return parts;
+        }
+        return Arrays.stream(parts)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toArray(String[]::new);
     }
 
     /**
@@ -234,10 +254,8 @@ public final class StringUtil {
      * @return 拆分后的 List，空字符串返回空列表
      */
     public static List<String> splitToList(String str, String delimiter) {
-        if (str == null || str.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return Arrays.asList(str.split(Pattern.quote(delimiter)));
+        // 复用核心方法：默认忽略空元素与空白片段
+        return splitToList(str, delimiter, true);
     }
 
     /**
@@ -247,10 +265,51 @@ public final class StringUtil {
      * @return 拆分后的 List，空字符串返回空列表
      */
     public static List<String> splitToList(String str) {
-        if (str == null || str.isEmpty()) {
+        // 复用核心方法：默认忽略空元素与空白片段
+        return splitToList(str, DEFAULT_DELIMITER, true);
+    }
+
+    /**
+     * 将字符串按分隔符拆分为列表
+     * <p>
+     * 支持选择是否忽略空元素；当 {@code ignoreEmpty} 为 {@code true} 时，会对分段进行 {@code trim()}，
+     * 并过滤掉空字符串（包括仅包含空白字符的片段）。当为 {@code false} 时，将保留经 {@code trim()} 后的结果，
+     * 即可能包含空字符串。
+     * </p>
+     *
+     * @param str         原始字符串
+     * @param delimiter   分隔符（如 ","）
+     * @param ignoreEmpty 是否忽略空元素（true=忽略空与空白片段，false=保留）
+     * @return 拆分后的 List，空字符串或 null 返回空列表
+     */
+    public static List<String> splitToList(String str, String delimiter, boolean ignoreEmpty) {
+        // 空安全：原始字符串或分隔符为空时，返回空列表
+        if (str == null || str.isEmpty() || delimiter == null) {
             return Collections.emptyList();
         }
-        return Arrays.asList(str.split(Pattern.quote(DEFAULT_DELIMITER)));
+
+        // 使用 -1 的 limit 以保留尾部空段（当 ignoreEmpty=false 时有意义）
+        // 同时用 Pattern.quote 保证分隔符按字面量处理，避免正则元字符干扰
+        String[] parts = str.split(Pattern.quote(delimiter), -1);
+
+        // 预估容量：最多等于 parts.length
+        List<String> result = new ArrayList<>(parts.length);
+
+        // 遍历分段：统一 trim；根据 ignoreEmpty 控制是否过滤空白
+        for (String part : parts) {
+            String val = part == null ? "" : part.trim();
+            if (ignoreEmpty) {
+                // 忽略空与仅空白的片段
+                if (val.isEmpty()) {
+                    continue;
+                }
+                result.add(val);
+            } else {
+                // 保留（可能为空字符串）——此时仍为 trim 后的值，避免意外空白
+                result.add(val);
+            }
+        }
+        return result;
     }
 
     /**
@@ -264,8 +323,59 @@ public final class StringUtil {
         if (str == null || str.isEmpty()) {
             return Collections.emptySet();
         }
-        return Arrays.stream(str.split(Pattern.quote(delimiter)))
-                .collect(Collectors.toSet());
+        return new HashSet<>(splitToList(str, delimiter));
+    }
+
+    /**
+     * 按指定分隔符分割字符串，并转换为指定类型的列表
+     * <p>
+     * 支持选择是否忽略空元素；当 {@code ignoreEmpty} 为 {@code true} 时，会对分段进行 {@code trim()}，
+     * 并过滤掉空字符串（包括仅包含空白字符的片段）。当为 {@code false} 时，将保留经 {@code trim()} 后的结果，
+     * 即可能包含空字符串。转换过程中若发生异常或转换结果为 {@code null}，该元素将被跳过。
+     * </p>
+     *
+     * @param <T>         目标类型
+     * @param str         原始字符串
+     * @param delimiter   分隔符
+     * @param converter   转换函数，将字符串转为 T 类型
+     * @param ignoreEmpty 是否忽略空元素（true=忽略空与空白片段，false=保留）
+     * @param ignoreError 是否忽略转换异常（true=忽略并跳过错误数据，false=抛出异常）
+     * @return 转换成功的 T 类型列表，字符串为空或无有效元素时返回空列表
+     */
+    public static <T> List<T> splitToList(String str,
+                                          String delimiter,
+                                          Function<String, T> converter,
+                                          boolean ignoreEmpty,
+                                          boolean ignoreError) {
+        if (str == null || str.isEmpty() || delimiter == null || converter == null) {
+            return Collections.emptyList();
+        }
+
+        // 使用 -1 保留尾部空段（在 ignoreEmpty=false 时有意义）
+        String[] parts = str.split(Pattern.quote(delimiter), -1);
+        List<T> result = new ArrayList<>(parts.length);
+
+        for (String part : parts) {
+            String trimmed = part == null ? "" : part.trim();
+
+            if (ignoreEmpty && trimmed.isEmpty()) {
+                // 忽略空与仅空白片段
+                continue;
+            }
+
+            try {
+                T value = converter.apply(trimmed);
+                if (value != null) {
+                    result.add(value);
+                }
+            } catch (Exception e) {
+                if (!ignoreError) {
+                    throw e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
+                }
+                // ignoreError = true → 跳过错误数据
+            }
+        }
+        return result;
     }
 
     /**
@@ -278,26 +388,7 @@ public final class StringUtil {
      * @return 转换成功的 T 类型列表，字符串为空或无有效元素时返回空列表
      */
     public static <T> List<T> splitToList(String str, String delimiter, Function<String, T> converter) {
-        List<T> result = new ArrayList<>();
-        if (str == null || delimiter == null || converter == null) {
-            return result;
-        }
-        String[] parts = str.split(Pattern.quote(delimiter));
-        for (String part : parts) {
-            String trimmed = part.trim();
-            if (trimmed.isEmpty()) {
-                continue;
-            }
-            try {
-                T value = converter.apply(trimmed);
-                if (value != null) {
-                    result.add(value);
-                }
-            } catch (Exception e) {
-                // 转换失败时跳过该元素，防止抛出异常
-            }
-        }
-        return result;
+        return splitToList(str, delimiter, converter, true, false);
     }
 
     /**
@@ -310,43 +401,6 @@ public final class StringUtil {
      */
     public static <T> List<T> splitToList(String str, Function<String, T> converter) {
         return splitToList(str, DEFAULT_DELIMITER, converter);
-    }
-
-    /**
-     * 将字符串按分隔符拆分为指定类型的 List
-     *
-     * @param str         待拆分字符串
-     * @param delimiter   分隔符
-     * @param converter   转换函数，将每个分隔后的字符串转换为目标类型
-     * @param ignoreError 是否忽略转换异常，true 忽略并跳过错误数据，false 抛出异常
-     * @param <T>         目标类型
-     * @return 转换后的 List，输入为空返回空列表
-     */
-    public static <T> List<T> splitToList(String str, String delimiter, Function<String, T> converter, boolean ignoreError) {
-        if (str == null || str.isEmpty()) {
-            return Collections.emptyList();
-        }
-        if (delimiter == null || delimiter.isEmpty()) {
-            throw new IllegalArgumentException("分隔符不能为空");
-        }
-        if (converter == null) {
-            throw new IllegalArgumentException("转换函数不能为空");
-        }
-
-        String[] parts = str.split(delimiter);
-        List<T> result = new ArrayList<>(parts.length);
-
-        for (String part : parts) {
-            try {
-                result.add(converter.apply(part));
-            } catch (Exception e) {
-                if (!ignoreError) {
-                    throw e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
-                }
-                // 忽略错误时跳过该元素
-            }
-        }
-        return result;
     }
 
     /**
@@ -461,6 +515,45 @@ public final class StringUtil {
         return str.replace(target, replacement);
     }
 
+    /**
+     * 批量替换字符串中的内容。
+     * <p>根据传入的 Map，将字符串中出现的 key 替换为对应的 value。</p>
+     *
+     * <pre>
+     * 示例：
+     * String text = "Hello ${name}, welcome to ${place}!";
+     * Map<String, Object> map = new HashMap<>();
+     * map.put("${name}", "Tony");
+     * map.put("${place}", "Beijing");
+     *
+     * String result = replaceByMap(text, map);
+     * // result = "Hello Tony, welcome to Beijing!"
+     * </pre>
+     *
+     * @param text   原始字符串
+     * @param values 替换规则，key 为要替换的内容，value 为替换结果
+     * @return 替换后的字符串；如果 text 或 values 为空则返回原字符串
+     */
+    public static String replaceByMap(String text, Map<String, Object> values) {
+        if (text == null || values == null || values.isEmpty()) {
+            return text;
+        }
+
+        String result = text;
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (key == null) {
+                continue;
+            }
+            // 确保特殊字符不会被当成正则处理
+            String regex = Pattern.quote(key);
+            result = result.replaceAll(regex, value == null ? "" : value.toString());
+        }
+        return result;
+    }
+
     // ======================== 安全替换（自动转义 target & replacement） ========================
 
     /**
@@ -551,7 +644,8 @@ public final class StringUtil {
         if (str == null || target == null || replacement == null) {
             return str;
         }
-        String regex = "(?i)" + Pattern.quote(target); // (?i) 忽略大小写
+        // (?i) 忽略大小写
+        String regex = "(?i)" + Pattern.quote(target);
         String quotedReplacement = Matcher.quoteReplacement(replacement);
         return replaceAll ? str.replaceAll(regex, quotedReplacement)
                 : str.replaceFirst(regex, quotedReplacement);
@@ -967,19 +1061,19 @@ public final class StringUtil {
      */
     public static String maskPhone(String phone) {
         // 手机号固定长度
-        final int PHONE_LENGTH = 11;
+        final int phoneLength = 11;
         // 前面可见位数
-        final int PREFIX_VISIBLE = 3;
+        final int prefixVisible = 3;
         // 后面可见位数
-        final int SUFFIX_VISIBLE = 4;
+        final int suffixVisible = 4;
         // 中间脱敏符号
-        final String MASK = "****";
+        final String mask = "****";
 
-        if (phone == null || phone.length() != PHONE_LENGTH) {
+        if (phone == null || phone.length() != phoneLength) {
             return phone;
         }
 
-        return phone.substring(0, PREFIX_VISIBLE) + MASK + phone.substring(PHONE_LENGTH - SUFFIX_VISIBLE);
+        return phone.substring(0, prefixVisible) + mask + phone.substring(phoneLength - suffixVisible);
     }
 
     /**
@@ -990,22 +1084,22 @@ public final class StringUtil {
      */
     public static String maskIdCard(String id) {
         // 脱敏最小长度限制
-        final int MIN_LENGTH = 8;
+        final int minLength = 8;
         // 前面可见长度
-        final int PREFIX_VISIBLE = 3;
+        final int prefixVisible = 3;
         // 后面可见长度
-        final int SUFFIX_VISIBLE = 4;
+        final int suffixVisible = 4;
 
-        if (id == null || id.length() < MIN_LENGTH) {
+        if (id == null || id.length() < minLength) {
             return id;
         }
         int length = id.length();
-        int maskLength = length - PREFIX_VISIBLE - SUFFIX_VISIBLE;
+        int maskLength = length - prefixVisible - suffixVisible;
         StringBuilder maskBuilder = new StringBuilder();
         for (int i = 0; i < maskLength; i++) {
             maskBuilder.append('*');
         }
-        return id.substring(0, PREFIX_VISIBLE) + maskBuilder.toString() + id.substring(length - SUFFIX_VISIBLE);
+        return id.substring(0, prefixVisible) + maskBuilder.toString() + id.substring(length - suffixVisible);
     }
 
     /**
@@ -1423,7 +1517,7 @@ public final class StringUtil {
         String cleaned = url.trim().toLowerCase();
 
         // 危险协议列表
-        String[] dangerousProtocols = { "javascript:", "data:", "vbscript:" };
+        String[] dangerousProtocols = {"javascript:", "data:", "vbscript:"};
         // 注入字符正则
         String injectionPattern = ".*[<>\"'`()].*";
         // 非 ASCII 可打印字符正则
@@ -1468,13 +1562,13 @@ public final class StringUtil {
         }
 
         // 正则表达式变量
-        final String CONTROL_WHITESPACE_PATTERN = "[\\p{Cntrl}\\s]+";
-        final String INJECTION_CHARS_PATTERN = "[<>\"'`()]";
-        final String NON_ASCII_PRINTABLE_PATTERN = "[^\\x20-\\x7E]";
-        final String HTTP_URL_PATTERN = "^(?i)https?://.*";
+        final String controlWhitespacePattern = "[\\p{Cntrl}\\s]+";
+        final String injectionCharsPattern = "[<>\"'`()]";
+        final String nonAsciiPrintablePattern = "[^\\x20-\\x7E]";
+        final String httpUrlPattern = "^(?i)https?://.*";
 
         // 去掉控制字符和空白符，替换为单个空格并去首尾空格
-        String fixed = url.replaceAll(CONTROL_WHITESPACE_PATTERN, " ").trim();
+        String fixed = url.replaceAll(controlWhitespacePattern, " ").trim();
 
         // 不安全 URL 直接拒绝
         if (!isSafeUrl(fixed)) {
@@ -1482,14 +1576,15 @@ public final class StringUtil {
         }
 
         // 移除 HTML/JS 注入字符
-        fixed = fixed.replaceAll(INJECTION_CHARS_PATTERN, "");
+        fixed = fixed.replaceAll(injectionCharsPattern, "");
 
         // 移除非 ASCII 可打印字符
-        fixed = fixed.replaceAll(NON_ASCII_PRINTABLE_PATTERN, "");
+        fixed = fixed.replaceAll(nonAsciiPrintablePattern, "");
 
         // 如果没有协议，补上 http://
-        if (!fixed.matches(HTTP_URL_PATTERN)) {
-            fixed = "http://" + fixed;
+        final String httpPrefix = "http://";
+        if (!fixed.matches(httpUrlPattern)) {
+            fixed = httpPrefix + fixed;
         }
 
         try {
@@ -1526,26 +1621,34 @@ public final class StringUtil {
      * @return 规范后的干净路径字符串
      */
     public static String fixPath(String path) {
+        // 魔法值常量
+        final char backslashChar = '\\';
+        final char slashChar = '/';
+        final String multipleSlashPattern = "/+";
+        final String currentDir = ".";
+        final String parentDir = "..";
+        final String emptyString = "";
+
         if (path == null || path.trim().isEmpty()) {
-            return "";
+            return emptyString;
         }
         // 去除前后空格
         path = path.trim();
         // 统一反斜杠为正斜杠
-        path = path.replace('\\', '/');
+        path = path.replace(backslashChar, slashChar);
         // 去除连续多余的斜杠，比如 /////
-        path = path.replaceAll("/+", "/");
+        path = path.replaceAll(multipleSlashPattern, String.valueOf(slashChar));
 
         // 处理相对路径 . 和 ..
-        String[] parts = path.split("/");
+        String[] parts = path.split(String.valueOf(slashChar));
         Deque<String> stack = new LinkedList<>();
 
         for (String part : parts) {
-            if (part.equals("") || part.equals(".")) {
+            if (part.equals(emptyString) || part.equals(currentDir)) {
                 // 空或者当前目录，跳过
                 continue;
             }
-            if (part.equals("..")) {
+            if (part.equals(parentDir)) {
                 // 上一级目录，弹出栈顶（如果存在）
                 if (!stack.isEmpty()) {
                     stack.pollLast();
@@ -1559,14 +1662,14 @@ public final class StringUtil {
         // 重新拼接路径
         StringBuilder cleanPath = new StringBuilder();
         for (String dir : stack) {
-            cleanPath.append("/").append(dir);
+            cleanPath.append(slashChar).append(dir);
         }
 
         // 如果输入是绝对路径（以 '/' 开头），保留开头的 '/'
         // 否则去掉开头的 '/'，返回相对路径
-        boolean isAbsolute = path.startsWith("/");
+        boolean isAbsolute = path.startsWith(String.valueOf(slashChar));
         if (cleanPath.length() == 0) {
-            return isAbsolute ? "/" : "";
+            return isAbsolute ? String.valueOf(slashChar) : emptyString;
         }
         return isAbsolute ? cleanPath.toString() : cleanPath.substring(1);
     }
