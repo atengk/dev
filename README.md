@@ -68,6 +68,8 @@
   - [Docker插件](/work/Ateng-Java/springboot3/docker/)
   - [Email邮箱](/work/Ateng-Java/springboot3/email/)
   - [Email邮箱-JDK8](/work/Ateng-Java/springboot3/email-jdk8/)
+  - [Jasypt配置加密](/work/Ateng-Java/springboot3/jasypt/)
+  - [Jasypt配置加密-JDK8](/work/Ateng-Java/springboot3/jasypt-jdk8/)
   - Admin 监控
     - [服务端](/work/Ateng-Java/springboot3/admin-server/)
     - [客户端](/work/Ateng-Java/springboot3/admin-client/)
@@ -162,3 +164,4 @@
     - [单机运行](/work/Ateng-Java/bigdata/spark-standalone/)
     - [集群运行](/work/Ateng-Java/bigdata/spark-cluster/)
   - [Zookeeper](/work/Ateng-Java/bigdata/zookeeper/)
+
