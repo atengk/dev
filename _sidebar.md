@@ -19,6 +19,7 @@
         - [客户端](/work/Ateng-Java/springboot3/admin-client/)
     - 序列化和反序列化
         - [Jackson](/work/Ateng-Java/springboot3/serialize-jackson/)
+        - [Fastjson](/work/Ateng-Java/springboot3/serialize-fastjson/)
         - [Fastjson2](/work/Ateng-Java/springboot3/serialize-fastjson2/)
     - 其他
         - [Spring Boot DevTools](/work/Ateng-Java/springboot3/doc/devtools.md)
