@@ -54,6 +54,13 @@
 
 ## 📚 全站索引
 
+- SpringBoot2相关
+  - [SMS4J短信](/work/Ateng-Java/springboot2/sms4j/)
+  - [SMS4J邮箱](/work/Ateng-Java/springboot2/sms4j-email/)
+  - [SMS4J OA](/work/Ateng-Java/springboot2/sms4j-oa/)
+  - [Email邮箱](/work/Ateng-Java/springboot2/boot2-email/)
+  - [Jasypt配置加密](/work/Ateng-Java/springboot2/boot2-jasypt/)
+  - [发布Maven仓库](/work/Ateng-Java/springboot2/boot2-deploy/)
 - SpringBoot3相关
   - [HTTP接口](/work/Ateng-Java/springboot3/http-interface/)
   - [配置文件](/work/Ateng-Java/springboot3/config/)
@@ -67,14 +74,13 @@
   - [AOP切面](/work/Ateng-Java/springboot3/aop/)
   - [Docker插件](/work/Ateng-Java/springboot3/docker/)
   - [Email邮箱](/work/Ateng-Java/springboot3/email/)
-  - [Email邮箱-JDK8](/work/Ateng-Java/springboot3/email-jdk8/)
   - [Jasypt配置加密](/work/Ateng-Java/springboot3/jasypt/)
-  - [Jasypt配置加密-JDK8](/work/Ateng-Java/springboot3/jasypt-jdk8/)
   - Admin 监控
     - [服务端](/work/Ateng-Java/springboot3/admin-server/)
     - [客户端](/work/Ateng-Java/springboot3/admin-client/)
   - 序列化和反序列化
     - [Jackson](/work/Ateng-Java/springboot3/serialize-jackson/)
+    - [Fastjson](/work/Ateng-Java/springboot3/serialize-fastjson/)
     - [Fastjson2](/work/Ateng-Java/springboot3/serialize-fastjson2/)
   - 其他
     - [Spring Boot DevTools](/work/Ateng-Java/springboot3/doc/devtools.md)
@@ -164,4 +170,3 @@
     - [单机运行](/work/Ateng-Java/bigdata/spark-standalone/)
     - [集群运行](/work/Ateng-Java/bigdata/spark-cluster/)
   - [Zookeeper](/work/Ateng-Java/bigdata/zookeeper/)
-

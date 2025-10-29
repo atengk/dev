@@ -4,6 +4,7 @@
     - [SMS4J OA](/work/Ateng-Java/springboot2/sms4j-oa/)
     - [Email邮箱](/work/Ateng-Java/springboot2/boot2-email/)
     - [Jasypt配置加密](/work/Ateng-Java/springboot2/boot2-jasypt/)
+    - [发布Maven仓库](/work/Ateng-Java/springboot2/boot2-deploy/)
 - SpringBoot3相关
     - [HTTP接口](/work/Ateng-Java/springboot3/http-interface/)
     - [配置文件](/work/Ateng-Java/springboot3/config/)
