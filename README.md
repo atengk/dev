@@ -55,12 +55,12 @@
 ## 📚 全站索引
 
 - SpringBoot2相关
+  - [发布Maven仓库](/work/Ateng-Java/springboot2/boot2-deploy/)
+  - [Jasypt配置加密](/work/Ateng-Java/springboot2/boot2-jasypt/)
   - [SMS4J短信](/work/Ateng-Java/springboot2/sms4j/)
   - [SMS4J邮箱](/work/Ateng-Java/springboot2/sms4j-email/)
   - [SMS4J OA](/work/Ateng-Java/springboot2/sms4j-oa/)
   - [Email邮箱](/work/Ateng-Java/springboot2/boot2-email/)
-  - [Jasypt配置加密](/work/Ateng-Java/springboot2/boot2-jasypt/)
-  - [发布Maven仓库](/work/Ateng-Java/springboot2/boot2-deploy/)
 - SpringBoot3相关
   - [HTTP接口](/work/Ateng-Java/springboot3/http-interface/)
   - [配置文件](/work/Ateng-Java/springboot3/config/)
@@ -75,6 +75,7 @@
   - [Docker插件](/work/Ateng-Java/springboot3/docker/)
   - [Email邮箱](/work/Ateng-Java/springboot3/email/)
   - [Jasypt配置加密](/work/Ateng-Java/springboot3/jasypt/)
+  - [发布Maven仓库](/work/Ateng-Java/springboot3/boot3-deploy/)
   - Admin 监控
     - [服务端](/work/Ateng-Java/springboot3/admin-server/)
     - [客户端](/work/Ateng-Java/springboot3/admin-client/)
@@ -85,8 +86,11 @@
   - 其他
     - [Spring Boot DevTools](/work/Ateng-Java/springboot3/doc/devtools.md)
     - [源码包和依赖包分离](/work/Ateng-Java/springboot3/doc/separate.md)
+- SpringBoot4相关
+  - [配置文件](/work/Ateng-Java/springboot4/boot-config/)
 - 工具相关
   - [Hutool](/work/Ateng-Java/tools/hutool/)
+  - [FastJson](/work/Ateng-Java/tools/fastjson1/)
   - [FastJson2](/work/Ateng-Java/tools/fastjson2/)
   - [Jackson](/work/Ateng-Java/tools/jackson/)
   - [Stream](/work/Ateng-Java/tools/stream/)
@@ -170,3 +174,16 @@
     - [单机运行](/work/Ateng-Java/bigdata/spark-standalone/)
     - [集群运行](/work/Ateng-Java/bigdata/spark-cluster/)
   - [Zookeeper](/work/Ateng-Java/bigdata/zookeeper/)
+
+- 设计模式
+  - [单例模式](/work/Ateng-Java/designpattern/singleton/)
+  - [🔥工厂模式🔥](/work/Ateng-Java/designpattern/factory/)
+  - [🔥策略模式🔥](/work/Ateng-Java/designpattern/strategy/)
+  - [模板方法模式](/work/Ateng-Java/designpattern/template/)
+  - [装饰器模式](/work/Ateng-Java/designpattern/decorator/)
+  - [代理模式](/work/Ateng-Java/designpattern/proxy/)
+  - [适配器模式](/work/Ateng-Java/designpattern/adapter/)
+  - [外观模式](/work/Ateng-Java/designpattern/facade/)
+  - [单例模式](/work/Ateng-Java/designpattern/singleton/)
+  - [责任链模式](/work/Ateng-Java/designpattern/chain/)
+
