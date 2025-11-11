@@ -25,5 +25,19 @@
         <module>adapter</module>
         <module>facade</module>
         <module>chain</module>
+        <module>builder</module>
+        <module>prototype</module>
+        <module>state</module>
+        <module>command</module>
+        <module>composite</module>
+        <module>iterator</module>
+        <module>abstractfactory</module>
+        <module>factorymethod</module>
+        <module>bridge</module>
+        <module>mediator</module>
+        <module>flyweight</module>
+        <module>memento</module>
+        <module>interpreter</module>
+        <module>visitor</module>
     </modules>
 </project>
