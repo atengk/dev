@@ -118,6 +118,7 @@
   - [AutoTable](/work/Ateng-Java/database/autotable/)
   - [PostGIS SQL](/work/Ateng-Java/database/mybatis-flex-postgis/SQL.md)
   - [PostGIS](/work/Ateng-Java/database/mybatis-flex-postgis/)
+  - [Beetl](/work/Ateng-Java/database/beetl/)
 - 缓存相关
   - [RedisTemplate](/work/Ateng-Java/cache/redis-template/)
   - [RedisTemplate-JDK8](/work/Ateng-Java/cache/redis-template-jdk8/)

@@ -1761,6 +1761,280 @@ public final class CollectionUtil {
     }
 
     /**
+     * 在树形结构中根据唯一标识查找节点
+     *
+     * <p>采用深度优先遍历（DFS），一旦匹配立即返回。</p>
+     *
+     * @param roots          树的根节点列表
+     * @param childrenGetter 获取子节点列表的函数，例如：Menu::getChildren
+     * @param keyGetter      获取节点唯一标识的函数，例如：Menu::getId
+     * @param targetKey      要查找的目标标识值
+     * @param <T>            节点类型
+     * @param <K>            唯一标识类型
+     * @return 匹配的节点，未找到返回 null
+     */
+    public static <T, K> T findInTree(List<T> roots,
+                                      Function<T, List<T>> childrenGetter,
+                                      Function<T, K> keyGetter,
+                                      K targetKey) {
+
+        if (roots == null || roots.isEmpty()
+                || keyGetter == null || childrenGetter == null) {
+            return null;
+        }
+
+        for (T node : roots) {
+            if (node == null) {
+                continue;
+            }
+
+            K id = keyGetter.apply(node);
+            if (Objects.equals(id, targetKey)) {
+                return node;
+            }
+
+            List<T> children = childrenGetter.apply(node);
+            if (children != null && !children.isEmpty()) {
+                T found = findInTree(children, childrenGetter, keyGetter, targetKey);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 获取树形结构中所有节点的唯一标识列表
+     *
+     * <p>采用深度优先遍历（DFS），按遍历顺序收集所有节点的标识值。</p>
+     *
+     * @param roots          树的根节点列表
+     * @param childrenGetter 获取子节点列表的函数，例如：Menu::getChildren
+     * @param keyGetter      获取节点唯一标识的函数，例如：Menu::getId
+     * @param <T>            节点类型
+     * @param <K>            唯一标识类型
+     * @return 所有节点的唯一标识列表，若树为空返回空列表
+     */
+    public static <T, K> List<K> collectTreeKeys(List<T> roots,
+                                                 Function<T, List<T>> childrenGetter,
+                                                 Function<T, K> keyGetter) {
+
+        List<K> result = new ArrayList<>();
+
+        if (roots == null || roots.isEmpty()
+                || keyGetter == null || childrenGetter == null) {
+            return result;
+        }
+
+        collectKeysRecursively(roots, childrenGetter, keyGetter, result);
+
+        return result;
+    }
+
+    /**
+     * 递归收集节点唯一标识
+     *
+     * @param nodes          当前节点列表
+     * @param childrenGetter 获取子节点列表的函数
+     * @param keyGetter      获取节点唯一标识的函数
+     * @param result         结果容器
+     */
+    private static <T, K> void collectKeysRecursively(List<T> nodes,
+                                                      Function<T, List<T>> childrenGetter,
+                                                      Function<T, K> keyGetter,
+                                                      List<K> result) {
+
+        for (T node : nodes) {
+            if (node == null) {
+                continue;
+            }
+
+            result.add(keyGetter.apply(node));
+
+            List<T> children = childrenGetter.apply(node);
+            if (children != null && !children.isEmpty()) {
+                collectKeysRecursively(children, childrenGetter, keyGetter, result);
+            }
+        }
+    }
+
+    /**
+     * 在树结构中，根据指定的唯一标识，
+     * 对命中的节点及其所有子节点执行指定操作
+     *
+     * @param tree           树结构数据
+     * @param idGetter       获取节点唯一标识
+     * @param childrenGetter 获取子节点集合
+     * @param matchId        需要匹配的 id
+     * @param consumer       对节点执行的操作
+     * @param <T>            节点类型
+     * @param <ID>           主键类型
+     */
+    public static <T, ID> void operateSubTreeById(
+            Collection<T> tree,
+            Function<T, ID> idGetter,
+            Function<T, Collection<T>> childrenGetter,
+            ID matchId,
+            Consumer<T> consumer
+    ) {
+        if (tree == null || tree.isEmpty() || consumer == null) {
+            return;
+        }
+
+        for (T node : tree) {
+            if (node == null) {
+                continue;
+            }
+
+            // 命中节点：对自己和子树执行操作
+            if (Objects.equals(idGetter.apply(node), matchId)) {
+                operateRecursively(node, childrenGetter, consumer);
+                return; // 唯一标识，命中后即可结束
+            }
+
+            // 继续向下查找
+            Collection<T> children = childrenGetter.apply(node);
+            if (children != null && !children.isEmpty()) {
+                operateSubTreeById(children, idGetter, childrenGetter, matchId, consumer);
+            }
+        }
+    }
+
+    /**
+     * 对当前节点及其所有子节点递归执行操作
+     *
+     * @param childrenGetter 获取子节点集合
+     * @param consumer       对节点执行的操作
+     * @param <T>            节点类型
+     */
+    private static <T> void operateRecursively(
+            T node,
+            Function<T, Collection<T>> childrenGetter,
+            Consumer<T> consumer
+    ) {
+        consumer.accept(node);
+
+        Collection<T> children = childrenGetter.apply(node);
+        if (children == null || children.isEmpty()) {
+            return;
+        }
+
+        for (T child : children) {
+            operateRecursively(child, childrenGetter, consumer);
+        }
+    }
+
+    /**
+     * 在树结构中：
+     * 当节点满足匹配条件时，
+     * 对【该节点本身及其所有上级节点】执行指定操作
+     *
+     * @param tree           树结构
+     * @param matcher        节点匹配条件
+     * @param childrenGetter 获取子节点
+     * @param consumer       对节点执行的操作
+     * @param <T>            节点类型
+     */
+    public static <T> void operateMatchedNodeAndAncestors(
+            Collection<T> tree,
+            Predicate<T> matcher,
+            Function<T, Collection<T>> childrenGetter,
+            Consumer<T> consumer
+    ) {
+        if (tree == null || tree.isEmpty() || matcher == null || consumer == null) {
+            return;
+        }
+
+        Deque<T> path = new ArrayDeque<>();
+        for (T node : tree) {
+            traverseForAncestors(node, matcher, childrenGetter, consumer, path);
+        }
+    }
+
+    /**
+     * 深度优先遍历树结构，用于处理「匹配节点及其所有上级节点」的场景。
+     *
+     * @param node           当前遍历的节点
+     * @param matcher        节点匹配条件，用于判断当前节点是否命中
+     * @param childrenGetter 用于获取当前节点的子节点集合
+     * @param consumer       对匹配节点及其祖先节点执行的操作
+     * @param path           当前遍历路径（从根节点到当前节点的栈结构）
+     * @param <T>            节点类型
+     */
+    private static <T> void traverseForAncestors(
+            T node,
+            Predicate<T> matcher,
+            Function<T, Collection<T>> childrenGetter,
+            Consumer<T> consumer,
+            Deque<T> path
+    ) {
+        if (node == null) {
+            return;
+        }
+
+        // 入栈：表示当前路径
+        path.push(node);
+
+        // 如果当前节点命中
+        if (matcher.test(node)) {
+            // 对当前节点及所有祖先执行操作
+            for (T ancestor : path) {
+                consumer.accept(ancestor);
+            }
+        }
+
+        // 继续遍历子节点
+        Collection<T> children = childrenGetter.apply(node);
+        if (children != null && !children.isEmpty()) {
+            for (T child : children) {
+                traverseForAncestors(child, matcher, childrenGetter, consumer, path);
+            }
+        }
+
+        // 出栈
+        path.pop();
+    }
+
+    /**
+     * 在树结构中，仅对【满足条件的节点本身】执行指定操作
+     *
+     * @param tree           树结构数据
+     * @param matcher        节点匹配条件
+     * @param childrenGetter 获取子节点集合
+     * @param consumer       对匹配节点执行的操作
+     * @param <T>            节点类型
+     */
+    public static <T> void operateMatchedNode(
+            Collection<T> tree,
+            Predicate<T> matcher,
+            Function<T, Collection<T>> childrenGetter,
+            Consumer<T> consumer
+    ) {
+        if (tree == null || tree.isEmpty() || matcher == null || consumer == null) {
+            return;
+        }
+
+        for (T node : tree) {
+            if (node == null) {
+                continue;
+            }
+
+            // 只操作“当前节点”
+            if (matcher.test(node)) {
+                consumer.accept(node);
+            }
+
+            // 继续遍历子节点（但不级联操作）
+            Collection<T> children = childrenGetter.apply(node);
+            if (children != null && !children.isEmpty()) {
+                operateMatchedNode(children, matcher, childrenGetter, consumer);
+            }
+        }
+    }
+
+    /**
      * 获取列表中的 Top N 元素（需元素可比较）
      *
      * @param list 原始列表
@@ -2432,5 +2706,156 @@ public final class CollectionUtil {
 
         return new ArrayList<>(parentMap.values());
     }
+
+    /**
+     * 根据关联键，将 sourceList 中的指定字段值填充到 targetList 中
+     *
+     * <p>
+     * 典型场景：
+     * 两个列表实体不同，但存在相同业务主键，
+     * 需要将 sourceList 中的某些字段回填到 targetList
+     * </p>
+     *
+     * @param sourceList    数据来源列表
+     * @param targetList    需要被填充的目标列表
+     * @param sourceKeyFunc source 实体的关联键获取函数
+     * @param targetKeyFunc target 实体的关联键获取函数
+     * @param valueGetter   source 实体中需要回填的值获取函数
+     * @param valueSetter   target 实体中需要回填的值设置函数
+     * @param <S>           source 实体类型
+     * @param <T>           target 实体类型
+     * @param <K>           关联键类型
+     * @param <V>           回填值类型
+     */
+    public static <S, T, K, V> void fillByKey(
+            Collection<S> sourceList,
+            Collection<T> targetList,
+            Function<S, K> sourceKeyFunc,
+            Function<T, K> targetKeyFunc,
+            Function<S, V> valueGetter,
+            BiConsumer<T, V> valueSetter
+    ) {
+        if (isEmpty(sourceList) || isEmpty(targetList)) {
+            return;
+        }
+
+        Map<K, S> sourceMap = sourceList.stream()
+                .filter(Objects::nonNull)
+                .filter(e -> sourceKeyFunc.apply(e) != null)
+                .collect(Collectors.toMap(
+                        sourceKeyFunc,
+                        Function.identity(),
+                        (oldValue, newValue) -> oldValue
+                ));
+
+        for (T target : targetList) {
+            if (target == null) {
+                continue;
+            }
+
+            K key = targetKeyFunc.apply(target);
+            if (key == null) {
+                continue;
+            }
+
+            S source = sourceMap.get(key);
+            if (source == null) {
+                continue;
+            }
+
+            V value = valueGetter.apply(source);
+            valueSetter.accept(target, value);
+        }
+    }
+
+    /**
+     * 按集合顺序将 sourceList 中的值填充到 targetList
+     *
+     * <p>
+     * 不依赖主键或唯一键，
+     * 按 index 对齐：
+     * sourceList[i] -> targetList[i]
+     * </p>
+     *
+     * @param sourceList  数据来源列表
+     * @param targetList  目标列表
+     * @param valueGetter source 中值获取函数
+     * @param valueSetter target 中值设置函数
+     * @param <S>         source 实体类型
+     * @param <T>         target 实体类型
+     * @param <V>         回填值类型
+     */
+    public static <S, T, V> void fillByOrder(
+            List<S> sourceList,
+            List<T> targetList,
+            Function<S, V> valueGetter,
+            BiConsumer<T, V> valueSetter
+    ) {
+        if (isEmpty(sourceList) || isEmpty(targetList)) {
+            return;
+        }
+
+        int size = Math.min(sourceList.size(), targetList.size());
+
+        for (int i = 0; i < size; i++) {
+            S source = sourceList.get(i);
+            T target = targetList.get(i);
+
+            if (source == null || target == null) {
+                continue;
+            }
+
+            V value = valueGetter.apply(source);
+            valueSetter.accept(target, value);
+        }
+    }
+
+    /**
+     * 按集合顺序将 sourceList 中的值填充到 targetList，目标字段为空时才填
+     *
+     * <p>
+     * 不依赖主键或唯一键，
+     * 按 index 对齐：
+     * sourceList[i] -> targetList[i]
+     * </p>
+     *
+     * @param sourceList  数据来源列表
+     * @param targetList  目标列表
+     * @param valueGetter source 中值获取函数
+     * @param valueSetter target 中值设置函数
+     * @param <S>         source 实体类型
+     * @param <T>         target 实体类型
+     * @param <V>         回填值类型
+     */
+    public static <S, T, V> void fillByOrderIfAbsent(
+            List<S> sourceList,
+            List<T> targetList,
+            Function<S, V> valueGetter,
+            Function<T, V> targetValueGetter,
+            BiConsumer<T, V> valueSetter
+    ) {
+        if (isEmpty(sourceList) || isEmpty(targetList)) {
+            return;
+        }
+
+        int size = Math.min(sourceList.size(), targetList.size());
+
+        for (int i = 0; i < size; i++) {
+            S source = sourceList.get(i);
+            T target = targetList.get(i);
+
+            if (source == null || target == null) {
+                continue;
+            }
+
+            if (targetValueGetter.apply(target) != null) {
+                continue;
+            }
+
+            V value = valueGetter.apply(source);
+            valueSetter.accept(target, value);
+        }
+    }
+
 
 }

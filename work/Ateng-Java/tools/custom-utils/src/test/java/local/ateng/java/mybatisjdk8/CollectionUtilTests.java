@@ -57,7 +57,7 @@ public class CollectionUtilTests {
                 Menu::getId,
                 Menu::getParentId,
                 Menu::setChildren,
-                new HashSet<Integer>(Arrays.asList(0,1))
+                new HashSet<Integer>(Arrays.asList(0, 1))
         );
 
         System.out.println(JsonUtil.toJsonString(tree));
@@ -148,6 +148,169 @@ public class CollectionUtilTests {
         flatList.forEach(System.out::println);
 
     }
+
+    @Test
+    void testFindInTree() {
+        List<Menu> menus = Arrays.asList(
+                new Menu(1, 0, "系统管理"),
+                new Menu(2, 1, "用户管理"),
+                new Menu(3, 1, "角色管理"),
+                new Menu(4, 2, "用户列表"),
+                new Menu(5, 0, "首页"),
+                new Menu(6, 3, "权限设置")
+        );
+
+        // 构建树
+        List<Menu> tree = CollectionUtil.buildTree(
+                menus,
+                Menu::getId,
+                Menu::getParentId,
+                Menu::setChildren,
+                0
+        );
+
+        // 1. 在树中找到id为4的数据
+        Menu target = CollectionUtil.findInTree(
+                tree,
+                Menu::getChildren,
+                Menu::getId,
+                4
+        );
+        System.out.println(JsonUtil.toJsonString(target));
+        // 2. 在树中找到标识为"4-用户列表"的数据
+        Menu target2 = CollectionUtil.findInTree(
+                tree,
+                Menu::getChildren,
+                key -> key.getId() + "-" + key.getName(),
+                "4-用户列表"
+        );
+        System.out.println(JsonUtil.toJsonString(target2));
+    }
+
+    @Test
+    void testCollectTreeKeys() {
+        List<Menu> menus = Arrays.asList(
+                new Menu(1, 0, "系统管理"),
+                new Menu(2, 1, "用户管理"),
+                new Menu(3, 1, "角色管理"),
+                new Menu(4, 2, "用户列表"),
+                new Menu(5, 0, "首页"),
+                new Menu(6, 3, "权限设置")
+        );
+
+        // 构建树
+        List<Menu> tree = CollectionUtil.buildTree(
+                menus,
+                Menu::getId,
+                Menu::getParentId,
+                Menu::setChildren,
+                0
+        );
+
+        // 1. 在树中找到id
+        List<Integer> idList = CollectionUtil.collectTreeKeys(
+                tree,
+                Menu::getChildren,
+                Menu::getId
+        );
+        System.out.println(idList);
+        // 2. 在树中找到唯一标识
+        List<String> keyList = CollectionUtil.collectTreeKeys(
+                tree,
+                Menu::getChildren,
+                key -> key.getId() + "-" + key.getName()
+        );
+        System.out.println(keyList);
+    }
+
+    @Test
+    void operateSubTreeById_test() {
+        List<Menu> menus = Arrays.asList(
+                new Menu(1, 0, "系统管理"),
+                new Menu(2, 1, "用户管理"),
+                new Menu(3, 1, "角色管理"),
+                new Menu(4, 2, "用户列表"),
+                new Menu(5, 0, "首页"),
+                new Menu(6, 3, "权限设置")
+        );
+
+        List<Menu> tree = CollectionUtil.buildTree(
+                menus,
+                Menu::getId,
+                Menu::getParentId,
+                Menu::setChildren,
+                0
+        );
+
+        // 对 “系统管理(id=1)” 及其所有子节点执行操作
+        CollectionUtil.operateSubTreeById(
+                tree,
+                Menu::getId,
+                Menu::getChildren,
+                2,
+                menu -> menu.setName(menu.getName() + "_copy")
+        );
+        System.out.println(JsonUtil.toJsonString(tree));
+    }
+
+    @Test
+    void operateMatchedNodeAndAncestors_test() {
+        List<Menu> menus = Arrays.asList(
+                new Menu(1, 0, "系统管理"),
+                new Menu(2, 1, "用户管理"),
+                new Menu(3, 1, "角色管理"),
+                new Menu(4, 2, "用户列表"),
+                new Menu(5, 0, "首页"),
+                new Menu(6, 3, "权限设置")
+        );
+
+        List<Menu> tree = CollectionUtil.buildTree(
+                menus,
+                Menu::getId,
+                Menu::getParentId,
+                Menu::setChildren,
+                0
+        );
+
+        // 命中「用户列表(id=4)」，向上标记
+        CollectionUtil.operateMatchedNodeAndAncestors(
+                tree,
+                menu -> Objects.equals(menu.getId(), 4),
+                Menu::getChildren,
+                menu -> menu.setName(menu.getName() + "-active")
+        );
+        System.out.println(JsonUtil.toJsonString(tree));
+    }
+
+    @Test
+    void operateMatchedNode_test() {
+        List<Menu> menus = Arrays.asList(
+                new Menu(1, 0, "系统管理"),
+                new Menu(2, 1, "用户管理"),
+                new Menu(3, 1, "角色管理"),
+                new Menu(4, 2, "用户列表"),
+                new Menu(5, 0, "首页"),
+                new Menu(6, 3, "权限设置")
+        );
+
+        List<Menu> tree = CollectionUtil.buildTree(
+                menus,
+                Menu::getId,
+                Menu::getParentId,
+                Menu::setChildren,
+                0
+        );
+
+        // 对 “系统管理(id=1)” 及其所有子节点执行操作
+        CollectionUtil.operateMatchedNode(
+                tree,
+                menu -> Objects.equals(menu.getId(), 1),
+                Menu::getChildren,
+                menu -> menu.setName(menu.getName() + "-copy")
+        );
+        System.out.println(JsonUtil.toJsonString(tree));
+    }
+
 
     @Test
     void batchProcess() {
@@ -279,6 +442,7 @@ public class CollectionUtilTests {
             System.out.println();
         });
     }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -302,6 +466,7 @@ public class CollectionUtilTests {
         private Integer scoreValue;
         // getter / setter
     }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -311,6 +476,7 @@ public class CollectionUtilTests {
         private Integer value;
         // getter / setter
     }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -322,6 +488,7 @@ public class CollectionUtilTests {
         private List<ConfScoreBaseDTO> scoreList;
         // getter / setter
     }
+
     @Test
     void groupAsParentChildren() {
         List<ConfTypeFlatDTO> flatList = Arrays.asList(
@@ -362,6 +529,136 @@ public class CollectionUtilTests {
         System.out.println(voList);
         System.out.println(JsonUtil.toJsonString(voList));
 
+    }
+
+    @Data
+    public static class UserEntity {
+        private Long id;
+        private String name;
+        private Integer age;
+    }
+
+    @Data
+    public static class UserVO {
+        private Long id;
+        private String name;
+    }
+
+    public static List<UserEntity> buildSourceList() {
+        List<UserEntity> list = new ArrayList<>();
+
+        UserEntity u1 = new UserEntity();
+        u1.setId(1L);
+        u1.setName("张三");
+        u1.setAge(18);
+
+        UserEntity u2 = new UserEntity();
+        u2.setId(2L);
+        u2.setName("李四");
+        u2.setAge(20);
+
+        UserEntity u3 = new UserEntity();
+        u3.setId(3L);
+        u3.setName("王五");
+        u3.setAge(22);
+
+        list.add(u1);
+        list.add(u2);
+        list.add(u3);
+
+        return list;
+    }
+
+    public static List<UserVO> buildTargetList() {
+        List<UserVO> list = new ArrayList<>();
+
+        UserVO v1 = new UserVO();
+        v1.setId(1L);
+
+        UserVO v2 = new UserVO();
+        v2.setId(2L);
+
+        UserVO v3 = new UserVO();
+        v3.setId(4L);
+
+        list.add(v1);
+        list.add(v2);
+        list.add(v3);
+
+        return list;
+    }
+
+    /**
+     * 单字段回填测试
+     */
+    @Test
+    public void testFillNameById() {
+        List<UserEntity> sourceList = buildSourceList();
+        List<UserVO> targetList = buildTargetList();
+
+        CollectionUtil.fillByKey(
+                sourceList,
+                targetList,
+                UserEntity::getId,
+                UserVO::getId,
+                UserEntity::getName,
+                UserVO::setName
+        );
+
+        targetList.forEach(System.out::println);
+    }
+
+    /**
+     * 多字段回填测试
+     */
+    @Test
+    public void testFillMultiField() {
+        List<UserEntity> sourceList = buildSourceList();
+        List<UserVO> targetList = buildTargetList();
+
+        CollectionUtil.fillByKey(
+                sourceList,
+                targetList,
+                UserEntity::getId,
+                UserVO::getId,
+                source -> source,
+                (target, source) -> {
+                    target.setName(source.getName());
+                }
+        );
+
+        targetList.forEach(System.out::println);
+    }
+
+    @Test
+    public void testFillByOrder() {
+        List<UserEntity> sourceList = buildSourceList();
+        List<UserVO> targetList = buildTargetList();
+
+        CollectionUtil.fillByOrder(
+                sourceList,
+                targetList,
+                UserEntity::getName,
+                UserVO::setName
+        );
+
+        targetList.forEach(System.out::println);
+    }
+
+    @Test
+    public void testIsEqualIgnoreOrder() {
+        List<String> list1 = Arrays.asList("1", "2", "3");
+        List<String> list2 = Arrays.asList("1", "2", "3");
+        boolean result = CollectionUtil.isEqualIgnoreOrder(list1, list2);
+        System.out.println(result);
+        List<String> list12 = Arrays.asList("1", "2", "3");
+        List<String> list22 = Arrays.asList("1", "2", "3", "4");
+        boolean result2 = CollectionUtil.isEqualIgnoreOrder(list12, list22);
+        System.out.println(result2);
+        List<String> list13 = Arrays.asList("1", "2", "3");
+        List<String> list23 = Arrays.asList("1", "3", "2");
+        boolean result3 = CollectionUtil.isEqualIgnoreOrder(list13, list23);
+        System.out.println(result3);
     }
 
 }
