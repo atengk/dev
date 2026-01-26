@@ -479,6 +479,73 @@ public final class CollectionUtil {
     }
 
     /**
+     * 将集合元素按照指定规则进行分组，支持自定义 Map 与 List 实现
+     *
+     * <p>功能说明：</p>
+     * <ul>
+     *     <li>支持自定义 key 映射与 value 映射</li>
+     *     <li>支持指定 Map 实现类型</li>
+     *     <li>支持指定分组 List 实现类型</li>
+     *     <li>支持忽略 null key 或 null value</li>
+     * </ul>
+     *
+     * @param collection        输入集合
+     * @param keyMapper         分组 key 映射函数
+     * @param valueMapper       分组 value 映射函数
+     * @param mapSupplier       Map 实现提供者
+     * @param listSupplier      List 实现提供者
+     * @param ignoreNullKey     是否忽略 null key
+     * @param ignoreNullValue   是否忽略 null value
+     * @param <T>               原始元素类型
+     * @param <K>               分组 key 类型
+     * @param <V>               分组 value 类型
+     * @param <M>               Map 实现类型
+     * @return 分组后的 Map，若输入非法返回空 Map
+     */
+    public static <T, K, V, M extends Map<K, List<V>>> M groupBy(
+            Collection<T> collection,
+            Function<T, K> keyMapper,
+            Function<T, V> valueMapper,
+            Supplier<M> mapSupplier,
+            Supplier<List<V>> listSupplier,
+            boolean ignoreNullKey,
+            boolean ignoreNullValue
+    ) {
+
+        M result = mapSupplier.get();
+
+        if (collection == null || collection.isEmpty()) {
+            return result;
+        }
+
+        if (keyMapper == null || valueMapper == null) {
+            return result;
+        }
+
+        for (T item : collection) {
+            if (item == null) {
+                continue;
+            }
+
+            K key = keyMapper.apply(item);
+            V value = valueMapper.apply(item);
+
+            if (ignoreNullKey && key == null) {
+                continue;
+            }
+
+            if (ignoreNullValue && value == null) {
+                continue;
+            }
+
+            List<V> list = result.computeIfAbsent(key, k -> listSupplier.get());
+            list.add(value);
+        }
+
+        return result;
+    }
+
+    /**
      * 将集合转为 Set（自动去重）
      *
      * @param collection 输入集合
@@ -635,6 +702,77 @@ public final class CollectionUtil {
                         valueMapper,
                         (v1, v2) -> v2
                 ));
+    }
+
+    /**
+     * 将集合元素映射为 Map，支持自定义冲突策略、Map 实现及空值处理
+     *
+     * <p>功能说明：</p>
+     * <ul>
+     *     <li>支持自定义 key 与 value 映射规则</li>
+     *     <li>支持自定义 key 冲突合并策略</li>
+     *     <li>支持指定 Map 实现类型</li>
+     *     <li>支持忽略 null key 或 null value</li>
+     * </ul>
+     *
+     * @param collection        输入集合
+     * @param keyMapper         key 映射函数
+     * @param valueMapper       value 映射函数
+     * @param mergeFunction     key 冲突时的合并策略
+     * @param mapSupplier       Map 实现提供者
+     * @param ignoreNullKey     是否忽略 null key
+     * @param ignoreNullValue   是否忽略 null value
+     * @param <T>               原始元素类型
+     * @param <K>               key 类型
+     * @param <V>               value 类型
+     * @param <M>               Map 实现类型
+     * @return 转换后的 Map，若输入非法返回空 Map
+     */
+    public static <T, K, V, M extends Map<K, V>> M toMap(
+            Collection<T> collection,
+            Function<T, K> keyMapper,
+            Function<T, V> valueMapper,
+            BinaryOperator<V> mergeFunction,
+            Supplier<M> mapSupplier,
+            boolean ignoreNullKey,
+            boolean ignoreNullValue
+    ) {
+
+        if (collection == null || collection.isEmpty()) {
+            return mapSupplier.get();
+        }
+
+        if (keyMapper == null || valueMapper == null || mergeFunction == null || mapSupplier == null) {
+            return mapSupplier.get();
+        }
+
+        M result = mapSupplier.get();
+
+        for (T item : collection) {
+            if (item == null) {
+                continue;
+            }
+
+            K key = keyMapper.apply(item);
+            V value = valueMapper.apply(item);
+
+            if (ignoreNullKey && key == null) {
+                continue;
+            }
+
+            if (ignoreNullValue && value == null) {
+                continue;
+            }
+
+            if (result.containsKey(key)) {
+                V mergedValue = mergeFunction.apply(result.get(key), value);
+                result.put(key, mergedValue);
+            } else {
+                result.put(key, value);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -1645,6 +1783,84 @@ public final class CollectionUtil {
     }
 
     /**
+     * 为树形结构生成层级编号路径，例如：
+     * 1
+     * 1.1
+     * 1.2
+     * 2
+     * 2.1
+     * 2.1.1
+     *
+     * <p>该方法适用于已经构建完成 children 关系的树结构。
+     * 会按照当前节点在同级中的顺序，从 1 开始编号，并通过分隔符拼接成完整路径。</p>
+     *
+     * @param roots        树的根节点集合
+     * @param childrenGetter  获取子节点集合的方法，例如：Menu::getChildren
+     * @param codeSetter      设置编号的方法，例如：Menu::setTreeCode
+     * @param separator       层级分隔符，例如 "."、"-"
+     * @param <T>             节点类型
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     * CollectionUtil.fillTreeCode(
+     *     tree,
+     *     Menu::getChildren,
+     *     Menu::setTreeCode,
+     *     "."
+     * );
+     * }</pre>
+     */
+    public static <T> void fillTreeCode(List<T> roots,
+                                        Function<T, List<T>> childrenGetter,
+                                        BiConsumer<T, String> codeSetter,
+                                        String separator) {
+
+        if (roots == null || roots.isEmpty()
+                || childrenGetter == null
+                || codeSetter == null
+                || separator == null) {
+            return;
+        }
+
+        int index = 1;
+        for (T root : roots) {
+            if (root == null) {
+                continue;
+            }
+            String code = String.valueOf(index);
+            codeSetter.accept(root, code);
+            fillChildrenTreeCode(root, code, childrenGetter, codeSetter, separator);
+            index++;
+        }
+    }
+
+    /**
+     * 递归为子节点填充编号路径
+     */
+    private static <T> void fillChildrenTreeCode(T parent,
+                                                 String parentCode,
+                                                 Function<T, List<T>> childrenGetter,
+                                                 BiConsumer<T, String> codeSetter,
+                                                 String separator) {
+
+        List<T> children = childrenGetter.apply(parent);
+        if (children == null || children.isEmpty()) {
+            return;
+        }
+
+        int index = 1;
+        for (T child : children) {
+            if (child == null) {
+                continue;
+            }
+            String code = parentCode + separator + index;
+            codeSetter.accept(child, code);
+            fillChildrenTreeCode(child, code, childrenGetter, codeSetter, separator);
+            index++;
+        }
+    }
+
+    /**
      * 递归对子节点排序
      *
      * @param nodes          当前节点列表
@@ -2032,6 +2248,63 @@ public final class CollectionUtil {
                 operateMatchedNode(children, matcher, childrenGetter, consumer);
             }
         }
+    }
+
+    /**
+     * 根据子节点状态，自底向上递归标记树节点
+     *
+     * <p>规则说明：</p>
+     * <ul>
+     *     <li>叶子节点是否标记，由 {@code leafPredicate} 决定</li>
+     *     <li>非叶子节点：当且仅当其所有直接子节点都被标记时，才会被标记</li>
+     *     <li>标记结果会一直向上递归</li>
+     * </ul>
+     *
+     * @param nodes           当前层节点列表
+     * @param childrenGetter  获取子节点列表的方法
+     * @param leafPredicate   叶子节点判定条件
+     * @param marker          节点标记逻辑
+     * @param <T>             节点类型
+     * @return 当前节点列表是否全部被标记
+     */
+    public static <T> boolean markTreeByChildrenAllMatch(List<T> nodes,
+                                                         Function<T, List<T>> childrenGetter,
+                                                         Predicate<T> leafPredicate,
+                                                         Consumer<T> marker) {
+
+        if (nodes == null || nodes.isEmpty()) {
+            return true;
+        }
+
+        boolean allMarked = true;
+
+        for (T node : nodes) {
+            if (node == null) {
+                continue;
+            }
+
+            List<T> children = childrenGetter.apply(node);
+
+            boolean nodeMarked;
+            if (children == null || children.isEmpty()) {
+                nodeMarked = leafPredicate.test(node);
+            } else {
+                nodeMarked = markTreeByChildrenAllMatch(
+                        children,
+                        childrenGetter,
+                        leafPredicate,
+                        marker
+                );
+            }
+
+            if (nodeMarked) {
+                marker.accept(node);
+            } else {
+                allMarked = false;
+            }
+        }
+
+        return allMarked;
     }
 
     /**

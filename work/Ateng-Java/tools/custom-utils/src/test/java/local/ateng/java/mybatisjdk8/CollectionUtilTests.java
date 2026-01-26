@@ -1,6 +1,7 @@
 package local.ateng.java.mybatisjdk8;
 
 import local.ateng.java.customutils.entity.Menu;
+import local.ateng.java.customutils.entity.Menu2;
 import local.ateng.java.customutils.entity.MyUser;
 import local.ateng.java.customutils.init.InitData;
 import local.ateng.java.customutils.utils.CollectionUtil;
@@ -15,9 +16,68 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CollectionUtilTests {
+
+    @Test
+    void toMap() {
+        List<Menu> menus = Arrays.asList(
+                new Menu(1, 0, "系统管理"),
+                new Menu(2, 1, "用户管理"),
+                new Menu(3, 1, "角色管理"),
+                new Menu(4, 2, "用户列表"),
+                new Menu(5, 0, "首页"),
+                new Menu(6, 3, "权限设置")
+        );
+        // 等价于你原来的“后覆盖前”
+        Map<Integer, Menu> map = CollectionUtil.toMap(
+                menus,
+                Menu::getId,
+                Function.identity(),
+                (oldVal, newVal) -> newVal,
+                HashMap::new,
+                true,
+                false
+        );
+        System.out.println(map);
+        // 保持插入顺序（LinkedHashMap）
+        Map<Integer, Menu> map2 = CollectionUtil.toMap(
+                menus,
+                Menu::getId,
+                Function.identity(),
+                (v1, v2) -> v2,
+                LinkedHashMap::new,
+                true,
+                true
+        );
+        System.out.println(map2);
+        // key 冲突时报错（更严谨）
+        Map<Integer, Menu> map3 = CollectionUtil.toMap(
+                menus,
+                Menu::getId,
+                Function.identity(),
+                (v1, v2) -> {
+                    throw new IllegalStateException("key 冲突：" + v1);
+                },
+                HashMap::new,
+                true,
+                true
+        );
+        System.out.println(map3);
+        // value 合并（例如数值累加）
+        Map<Integer, Integer> countMap = CollectionUtil.toMap(
+                menus,
+                Menu::getId,
+                Menu::getParentId,
+                Integer::sum,
+                HashMap::new,
+                true,
+                true
+        );
+        System.out.println(countMap);
+    }
 
     @Test
     void buildTree() {
@@ -36,6 +96,35 @@ public class CollectionUtilTests {
                 Menu::getParentId,
                 Menu::setChildren,
                 0
+        );
+
+        System.out.println(JsonUtil.toJsonString(tree));
+    }
+
+    @Test
+    void fillTreeCode() {
+        List<Menu> menus = Arrays.asList(
+                new Menu(1, 0, "系统管理"),
+                new Menu(2, 1, "用户管理"),
+                new Menu(3, 1, "角色管理"),
+                new Menu(4, 2, "用户列表"),
+                new Menu(5, 0, "首页"),
+                new Menu(6, 3, "权限设置")
+        );
+
+        List<Menu> tree = CollectionUtil.buildTree(
+                menus,
+                Menu::getId,
+                Menu::getParentId,
+                Menu::setChildren,
+                0
+        );
+
+        CollectionUtil.fillTreeCode(
+                tree,
+                Menu::getChildren,
+                Menu::setTreeCode,
+                "."
         );
 
         System.out.println(JsonUtil.toJsonString(tree));
@@ -283,6 +372,37 @@ public class CollectionUtilTests {
     }
 
     @Test
+    void test0104() {
+        List<Menu2> menus = Arrays.asList(
+                new Menu2(1, 0, "系统管理", false, null),
+                new Menu2(2, 1, "用户管理", false, null),
+                new Menu2(3, 1, "角色管理", false, null),
+                new Menu2(4, 2, "用户列表", false, null),
+                new Menu2(5, 0, "首页"  , false, null  ),
+                new Menu2(6, 3, "权限设置", false, null)
+        );
+
+        List<Menu2> tree = CollectionUtil.buildTree(
+                menus,
+                Menu2::getId,
+                Menu2::getParentId,
+                Menu2::setChildren,
+                0
+        );
+        System.out.println(JsonUtil.toJsonString(tree));
+        List<String> keyList = Arrays.asList("用户列表", "权限设置");
+
+        CollectionUtil.markTreeByChildrenAllMatch(
+                tree,
+                Menu2::getChildren,
+                node -> keyList.contains(node.getName()),
+                node -> node.setDisabled(true)
+        );
+        System.out.println(JsonUtil.toJsonString(tree));
+
+    }
+
+    @Test
     void operateMatchedNode_test() {
         List<Menu> menus = Arrays.asList(
                 new Menu(1, 0, "系统管理"),
@@ -419,6 +539,99 @@ public class CollectionUtilTests {
             else return "中年";
         });
         System.out.println(result);
+    }
+
+    @Test
+    void testGroupByMultiKey() {
+
+        List<MyUser> userList = InitData.getDataList();
+
+        Map<String, List<MyUser>> map = CollectionUtil.groupBy(
+                userList,
+                user -> user.getProvince() + "-" + user.getCity() + "-" + user.getAge(),
+                Function.identity(),
+                LinkedHashMap::new,
+                ArrayList::new,
+                true,
+                false
+        );
+
+        map.forEach((k, v) -> {
+            System.out.println("key = " + k);
+            v.forEach(u -> System.out.println("  " + u.getName()));
+        });
+    }
+
+    @Test
+    void testGroupByProvinceOnlyName() {
+
+        List<MyUser> userList = InitData.getDataList();
+
+        Map<String, List<String>> map = CollectionUtil.groupBy(
+                userList,
+                MyUser::getProvince,
+                MyUser::getName,
+                HashMap::new,
+                ArrayList::new,
+                true,
+                true
+        );
+
+        map.forEach((k, v) -> {
+            System.out.println("province = " + k + ", names = " + v);
+        });
+    }
+
+    @Test
+    void testGroupByProvinceKeepOrder() {
+
+        List<MyUser> userList = InitData.getDataList();
+
+        Map<String, List<MyUser>> map = CollectionUtil.groupBy(
+                userList,
+                MyUser::getProvince,
+                Function.identity(),
+                LinkedHashMap::new,
+                LinkedList::new,
+                true,
+                false
+        );
+
+        map.forEach((k, v) -> {
+            System.out.println("province = " + k);
+            v.forEach(u -> System.out.println("  " + u.getId() + " - " + u.getName()));
+        });
+    }
+
+    @Test
+    void testGroupByAgeRange() {
+
+        List<MyUser> userList = InitData.getDataList();
+
+        Map<String, List<MyUser>> map = CollectionUtil.groupBy(
+                userList,
+                user -> {
+                    if (user.getAge() == null) {
+                        return "UNKNOWN";
+                    }
+                    if (user.getAge() < 18) {
+                        return "UNDER_18";
+                    }
+                    if (user.getAge() <= 30) {
+                        return "18_30";
+                    }
+                    return "30_PLUS";
+                },
+                Function.identity(),
+                HashMap::new,
+                ArrayList::new,
+                true,
+                false
+        );
+
+        map.forEach((k, v) -> {
+            System.out.println("ageRange = " + k + ", count = " + v.size());
+        });
     }
 
     @Test
