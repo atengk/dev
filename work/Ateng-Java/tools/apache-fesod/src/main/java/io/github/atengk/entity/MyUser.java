@@ -26,8 +26,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @HeadFontStyle(fontName = "宋体", fontHeightInPoints = 11, bold = BooleanEnum.TRUE)
 @ContentFontStyle(fontName = "宋体", fontHeightInPoints = 11, bold = BooleanEnum.FALSE)
-@HeadStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER, verticalAlignment = VerticalAlignmentEnum.CENTER, fillBackgroundColor = 9, fillForegroundColor = 9, borderLeft = BorderStyleEnum.THIN, borderRight = BorderStyleEnum.THIN, borderTop = BorderStyleEnum.THIN, borderBottom = BorderStyleEnum.THIN)
-@ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER, verticalAlignment = VerticalAlignmentEnum.CENTER, fillBackgroundColor = 9, fillForegroundColor = 9, borderLeft = BorderStyleEnum.THIN, borderRight = BorderStyleEnum.THIN, borderTop = BorderStyleEnum.THIN, borderBottom = BorderStyleEnum.THIN)
+@HeadStyle(wrapped = BooleanEnum.TRUE, horizontalAlignment = HorizontalAlignmentEnum.CENTER, verticalAlignment = VerticalAlignmentEnum.CENTER, fillBackgroundColor = 9, fillForegroundColor = 9, borderLeft = BorderStyleEnum.THIN, borderRight = BorderStyleEnum.THIN, borderTop = BorderStyleEnum.THIN, borderBottom = BorderStyleEnum.THIN)
+@ContentStyle(wrapped = BooleanEnum.TRUE, horizontalAlignment = HorizontalAlignmentEnum.CENTER, verticalAlignment = VerticalAlignmentEnum.CENTER, fillBackgroundColor = 9, fillForegroundColor = 9, borderLeft = BorderStyleEnum.THIN, borderRight = BorderStyleEnum.THIN, borderTop = BorderStyleEnum.THIN, borderBottom = BorderStyleEnum.THIN)
 @HeadRowHeight(25)  // 设置表头行高
 @ContentRowHeight(20)  // 设置数据内容行高
 @ColumnWidth(15)       // 设置列宽
@@ -108,5 +108,20 @@ public class MyUser implements Serializable {
     @DateTimeFormat("yyyy-MM-dd HH:mm:ss")
     @ColumnWidth(30) // 单独设置列宽
     private LocalDateTime createTime;
+
+    /**
+     * 图片
+     */
+    //@ExcelProperty(value = "图片", converter = StringUrlImageConverter.class)
+    //@ColumnWidth(20)
+    @ExcelIgnore
+    private String imageUrl;
+
+    /**
+     * 性别
+     */
+    //@ExcelProperty(value = "性别", converter = GenderConverter.class)
+    @ExcelIgnore
+    private Integer gender;
 
 }
