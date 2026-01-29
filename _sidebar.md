@@ -35,7 +35,8 @@
         - [Spring Boot DevTools](/work/Ateng-Java/springboot3/doc/devtools.md)
         - [源码包和依赖包分离](/work/Ateng-Java/springboot3/doc/separate.md)
 - SpringBoot4相关
-    - [配置文件](/work/Ateng-Java/springboot4/boot-config/)
+    - [Web 示例](/work/Ateng-Java/springboot4/boot4-web/)
+    - [配置文件](/work/Ateng-Java/springboot4/boot4-config/)
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
     - [FastJson](/work/Ateng-Java/tools/fastjson1/)
