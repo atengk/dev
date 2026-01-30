@@ -160,6 +160,7 @@
 - 实时性的服务
   - [WebSocket](/work/Ateng-Java/realtime/websocket/)
   - [STOMP](/work/Ateng-Java/realtime/stomp/)
+  - [STOMP Cluster](/work/Ateng-Java/realtime/stomp-cluster/)
   - [SSE](/work/Ateng-Java/realtime/sse/)
   - [Netty](/work/Ateng-Java/realtime/netty/)
 - 分布式相关
