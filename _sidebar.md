@@ -42,6 +42,7 @@
     - [FastJson](/work/Ateng-Java/tools/fastjson1/)
     - [FastJson2](/work/Ateng-Java/tools/fastjson2/)
     - [Jackson](/work/Ateng-Java/tools/jackson/)
+    - [Jackson3](/work/Ateng-Java/tools/jackson3/)
     - [Stream](/work/Ateng-Java/tools/stream/)
     - [MapStructPlus](/work/Ateng-Java/tools/mapstruct-plus/)
     - [FastExcel](/work/Ateng-Java/tools/fast-excel/)
