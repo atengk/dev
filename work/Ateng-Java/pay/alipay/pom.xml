@@ -5,21 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- 项目坐标 -->
-    <groupId>local.ateng.java</groupId>
-    <artifactId>hutool</artifactId>
-    <version>v1.0</version>
-    <name>hutool</name>
-    <description>hutool</description>
+    <groupId>io.github.atengk</groupId>
+    <artifactId>alipay</artifactId>
+    <version>1.0.0</version>
+    <name>alipay</name>
+    <description>支付宝支付</description>
+    <url>https://atengk.github.io/dev</url>
 
     <!-- 项目属性 -->
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-boot.version>3.4.1</spring-boot.version>
+        <spring-boot.version>3.5.10</spring-boot.version>
         <maven-compiler.version>3.12.1</maven-compiler.version>
-        <lombok.version>1.18.36</lombok.version>
-        <hutool.version>5.8.35</hutool.version>
+        <lombok.version>1.18.42</lombok.version>
+        <hutool.version>5.8.43</hutool.version>
+        <fastjson2.version>2.0.53</fastjson2.version>
+        <alipay.version>4.40.645.ALL</alipay.version>
     </properties>
 
     <!-- 项目依赖 -->
@@ -46,44 +49,27 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Hutool: Java工具库，提供了许多实用的工具方法 -->
+        <!-- Hutool 工具类 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
         </dependency>
 
-        <!-- Emoji字符 -->
+        <!-- 高性能的JSON库 -->
         <dependency>
-            <groupId>com.vdurmont</groupId>
-            <artifactId>emoji-java</artifactId>
-            <version>4.0.0</version>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>${fastjson2.version}</version>
         </dependency>
 
-        <!-- FTP客户端封装，此客户端基于Apache Commons Net -->
+       <!-- 支付宝支付依赖 -->
         <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>3.11.1</version>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>${alipay.version}</version>
         </dependency>
 
-        <!-- MySQL数据库驱动 -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-        </dependency>
-
-        <!-- Postgresql数据库驱动 -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-
-        <!-- HikariCP 数据源 依赖 -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-        </dependency>
     </dependencies>
 
     <!-- Spring Boot 依赖管理 -->
@@ -96,25 +82,23 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>cn.hutool</groupId>
-                <artifactId>hutool-bom</artifactId>
-                <version>${hutool.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <!-- 插件仓库配置 -->
     <repositories>
-        <!-- Central Repository -->
+        <!-- 阿里云中央仓库 -->
         <repository>
-            <id>central</id>
-            <name>阿里云中央仓库</name>
+            <id>aliyun-central</id>
+            <name>阿里云 Maven Central 镜像</name>
             <url>https://maven.aliyun.com/repository/central</url>
-            <!--<name>Maven官方中央仓库</name>
-            <url>https://repo.maven.apache.org/maven2/</url>-->
+        </repository>
+
+        <!-- Maven 官方中央仓库 -->
+        <repository>
+            <id>maven-central</id>
+            <name>Maven 官方中央仓库</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
         </repository>
     </repositories>
 

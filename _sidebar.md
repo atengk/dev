@@ -79,6 +79,9 @@
 - 权限认证
     - [Sa-Token](/work/Ateng-Java/auth/sa-token/)
     - [Spring Security](/work/Ateng-Java/auth/spring-security/)
+- 支付相关
+    - [支付宝支付](/work/Ateng-Java/pay/alipay/)
+    - [IJPay聚合支付](/work/Ateng-Java/pay/IJPay/)
 - 存储相关
     - [X File Storage](/work/Ateng-Java/storage/x-file-storage/)
     - [AWS S3](/work/Ateng-Java/storage/aws-s3/)
