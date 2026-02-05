@@ -93,9 +93,11 @@
   - [Web 示例](/work/Ateng-Java/springboot4/boot4-web/)
   - [配置文件](/work/Ateng-Java/springboot4/boot4-config/)
 - AI
-  - [Spring AI](/work/Ateng-Java/ai/spring-ai/)
-  - [Spring AI Alibaba](/work/Ateng-Java/ai/spring-ai-alibaba/)
-
+  - [Spring AI 1](/work/Ateng-Java/ai/spring-ai1/)
+  - [Spring AI 2](/work/Ateng-Java/ai/spring-ai2/)
+  - [Spring AI Alibaba 1](/work/Ateng-Java/ai/spring-ai-alibaba1/)
+  - [Spring AI Alibaba 2](/work/Ateng-Java/ai/spring-ai-alibaba2/)
+  
 - 工具相关
   - [Hutool](/work/Ateng-Java/tools/hutool/)
   - [FastJson](/work/Ateng-Java/tools/fastjson1/)
