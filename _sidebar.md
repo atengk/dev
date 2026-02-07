@@ -39,7 +39,9 @@
     - [配置文件](/work/Ateng-Java/springboot4/boot4-config/)
 - AI
     - [Spring AI 1](/work/Ateng-Java/ai/spring-ai1/)
+    - [Spring AI 1 MCP Server](/work/Ateng-Java/ai/spring-ai1-mcp-server/)
     - [Spring AI 2](/work/Ateng-Java/ai/spring-ai2/)
+    - [Spring AI 2 MCP Server](/work/Ateng-Java/ai/spring-ai2-mcp-server/)
     - [Spring AI Alibaba 1](/work/Ateng-Java/ai/spring-ai-alibaba1/)
     - [Spring AI Alibaba 2](/work/Ateng-Java/ai/spring-ai-alibaba2/)
     

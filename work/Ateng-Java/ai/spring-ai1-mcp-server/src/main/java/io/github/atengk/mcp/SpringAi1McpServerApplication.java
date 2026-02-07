@@ -1,13 +1,13 @@
-package io.github.atengk.ai;
+package io.github.atengk.mcp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringAIAlibabaApplication {
+public class SpringAi1McpServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringAIAlibabaApplication.class, args);
+        SpringApplication.run(SpringAi1McpServerApplication.class, args);
     }
 
 }
