@@ -1,7 +1,10 @@
 # Milvus
 
 Milvus 是一款开源的向量数据库，专为大规模相似度搜索与 AI 应用设计，支持高维向量高效存储、索引与检索。常用于推荐系统、语义搜索、图像/视频检索与 RAG 场景，具备高性能、可扩展、云原生等特点。
-官网：[https://milvus.io](https://milvus.io)
+
+- 官网：[https://milvus.io](https://milvus.io)
+
+- Milvus服务安装文档：[链接](https://atengk.github.io/ops/#/work/docker/service/milvus/)
 
 
 
@@ -1114,6 +1117,8 @@ public interface FileVectorService {
 ```
 
 ### 接口实现PdfFileVectorService
+
+读取文本推荐使用 Apache Tika：[参考文档链接](/work/Ateng-Java/tools/apache-tika/)
 
 ```java
 package io.github.atengk.milvus.service.impl;
