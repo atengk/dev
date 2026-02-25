@@ -6,10 +6,10 @@
 
     <!-- 项目坐标 -->
     <groupId>io.github.atengk</groupId>
-    <artifactId>optional</artifactId>
+    <artifactId>functional-interface</artifactId>
     <version>1.0.0</version>
-    <name>optional</name>
-    <description>Java8 Optional 模块</description>
+    <name>functional-interface</name>
+    <description>Java8 函数式接口（Functional Interface） 模块</description>
     <url>https://atengk.github.io/dev</url>
 
     <!-- 项目属性 -->

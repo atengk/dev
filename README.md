@@ -59,6 +59,7 @@
   - [JRebel](/work/Ateng-Java/doc/install-plugin-jrebel.md)
 - Java 基础
   - [Optional](/work/Ateng-Java/basic/optional/)
+  - [Functional Interface](/work/Ateng-Java/basic/functional-interface/)
 - SpringBoot2相关
   - [发布Maven仓库](/work/Ateng-Java/springboot2/boot2-deploy/)
   - [Jasypt配置加密](/work/Ateng-Java/springboot2/boot2-jasypt/)
@@ -173,6 +174,8 @@
   -  [Snail Job](/work/Ateng-Java/task/snail-job/)
 
   -  [PowerJob](/work/Ateng-Java/task/power-job/)
+  
+  -  [数据库驱动的任务执行模型](/work/Ateng-Java/task/database-job/)
 - 实时性的服务
   - [WebSocket](/work/Ateng-Java/realtime/websocket/)
   - [WebSocket Single](/work/Ateng-Java/realtime/websocket-single/)
