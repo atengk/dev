@@ -2,6 +2,9 @@
     - [IntelliJ IDEA](/work/Ateng-Java/doc/install-idea.md)
     - [JRebel](/work/Ateng-Java/doc/install-plugin-jrebel.md)
 
+- Java 基础
+    - [Optional](/work/Ateng-Java/basic/optional/)
+
 - SpringBoot2相关
     - [发布Maven仓库](/work/Ateng-Java/springboot2/boot2-deploy/)
     - [Jasypt配置加密](/work/Ateng-Java/springboot2/boot2-jasypt/)
@@ -44,7 +47,7 @@
     - [Spring AI 2 MCP Server](/work/Ateng-Java/ai/spring-ai2-mcp-server/)
     - [Spring AI Alibaba 1](/work/Ateng-Java/ai/spring-ai-alibaba1/)
     - [Spring AI Alibaba 2](/work/Ateng-Java/ai/spring-ai-alibaba2/)
-    
+
 - 工具相关
     - [Hutool](/work/Ateng-Java/tools/hutool/)
     - [FastJson](/work/Ateng-Java/tools/fastjson1/)

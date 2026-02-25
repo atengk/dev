@@ -225,3 +225,50 @@ SQL工具类
 ## ImageUtil
 
 图片工具类
+
+
+
+## OshiUtil
+
+OSHI 系统监控工具类
+
+**添加依赖**
+
+```xml
+<!-- OSHI 硬件信息获取 -->
+<dependency>
+    <groupId>com.github.oshi</groupId>
+    <artifactId>oshi-core</artifactId>
+    <version>6.9.3</version>
+</dependency>
+```
+
+
+
+## SshClientUtil 
+
+Apache MINA SSHD 是 The Apache Software Foundation 旗下的 Java SSH 实现项目，为 Java 应用程序提供 SSH 客户端与服务器功能。它广泛用于嵌入式管理、自动化部署和安全文件传输场景，以模块化设计和可扩展性著称。
+
+**添加依赖**
+
+```xml
+<!-- Apache MINA SSHD 核心模块 -->
+<dependency>
+    <groupId>org.apache.sshd</groupId>
+    <artifactId>sshd-core</artifactId>
+    <version>2.17.1</version>
+</dependency>
+<!-- Apache MINA SSHD 公共模块 -->
+<dependency>
+    <groupId>org.apache.sshd</groupId>
+    <artifactId>sshd-common</artifactId>
+    <version>2.17.1</version>
+</dependency>
+<!-- Apache MINA SSHD OpenSSH 私钥解析模块 -->
+<dependency>
+    <groupId>org.apache.sshd</groupId>
+    <artifactId>sshd-openpgp</artifactId>
+    <version>2.17.1</version>
+</dependency>
+```
+

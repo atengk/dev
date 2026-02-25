@@ -23,6 +23,7 @@
         <hutool.version>5.8.43</hutool.version>
         <fastjson2.version>2.0.53</fastjson2.version>
         <milvus.version>2.5.8</milvus.version>
+        <tika.version>3.2.3</tika.version>
     </properties>
 
     <!-- 项目依赖 -->
@@ -70,18 +71,24 @@
             <version>${milvus.version}</version>
         </dependency>
 
-        <!-- PDF 文本解析 -->
+        <!-- Apache Tika 检测库 -->
         <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.30</version>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>${tika.version}</version>
+        </dependency>
+        <!-- Apache Tika 解析内容库 -->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers-standard-package</artifactId>
+            <version>${tika.version}</version>
         </dependency>
 
-        <!-- 通用 IO -->
+        <!-- Spring AI - OpenAI 依赖 -->
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+            <version>1.1.2</version>
         </dependency>
 
     </dependencies>
@@ -99,7 +106,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- 插件仓库配置 -->
+    <!-- 普通仓库配置 -->
     <repositories>
         <!-- 阿里云中央仓库 -->
         <repository>

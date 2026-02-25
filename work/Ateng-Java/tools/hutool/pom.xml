@@ -84,6 +84,13 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
+
+        <!-- OSHI 核心依赖 -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.9.3</version>
+        </dependency>
     </dependencies>
 
     <!-- Spring Boot 依赖管理 -->
@@ -106,7 +113,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- 插件仓库配置 -->
+    <!-- 普通仓库配置 -->
     <repositories>
         <!-- Central Repository -->
         <repository>
