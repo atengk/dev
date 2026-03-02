@@ -199,6 +199,7 @@
   - [可观测SkyWalking](/work/Ateng-Java/distributed/doc/skywalking.md)
   - [微服务模块](/work/Ateng-Java/distributed/doc/spring-cloud-module.md)
   - [微服务模块(详细版)](/work/Ateng-Java/distributed/doc/spring-cloud-module-details.md)
+  - [Spring gRPC](/work/Ateng-Java/distributed/spring-grpc/)
 - 大数据相关
   - Flink
     - [使用文档](/work/Ateng-Java/bigdata/flink-examples/)
