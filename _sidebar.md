@@ -60,6 +60,7 @@
     - [FastExcel](/work/Ateng-Java/tools/fast-excel/)
     - [FastExcel-JDK8](/work/Ateng-Java/tools/fast-excel-jdk8/)
     - [EasyPoi](/work/Ateng-Java/tools/easy-poi/)
+    - [EasyPoi SpringBoot3](/work/Ateng-Java/tools/easy-poi-boot3/)
     - [Apache Fesod](/work/Ateng-Java/tools/apache-fesod/)
     - [Lombok](/work/Ateng-Java/tools/lombok/)
     - [异步编程](/work/Ateng-Java/tools/async/)
