@@ -60,6 +60,7 @@
 - Java 基础
   - [Optional](/work/Ateng-Java/basic/optional/)
   - [Functional Interface](/work/Ateng-Java/basic/functional-interface/)
+  - [Java 新语法](/work/Ateng-Java/basic/java-new-syntax/)
 - SpringBoot2相关
   - [发布Maven仓库](/work/Ateng-Java/springboot2/boot2-deploy/)
   - [Jasypt配置加密](/work/Ateng-Java/springboot2/boot2-jasypt/)
