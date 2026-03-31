@@ -1,13 +1,13 @@
-package local.ateng.java.config;
+package io.github.atengk.filter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringBoot4ConfigApplication {
+public class SpringBoot3FilterApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringBoot4ConfigApplication.class, args);
+        SpringApplication.run(SpringBoot3FilterApplication.class, args);
     }
 
 }
